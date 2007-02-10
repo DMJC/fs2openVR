@@ -249,7 +249,7 @@ void do_subobj_destroyed_stuff( ship *ship_p, ship_subsys *subsys, vec3d* hitpos
 		}
 	}
 
-	if ( psub->type == SUBSYSTEM_TURRET ) {
+	if (psub->type == SUBSYSTEM_TURRET) {
 		if ( ship_p->subsys_info[type].aggregate_current_hits <= 0.0f ) {
 			//	Don't create "disarmed" event for small ships.
 			if (!(Ship_info[ship_p->ship_info_index].flags & SIF_SMALL_SHIP)) {
@@ -257,13 +257,17 @@ void do_subobj_destroyed_stuff( ship *ship_p, ship_subsys *subsys, vec3d* hitpos
 				// ship_p->flags |= SF_DISARMED;
 			}
 		}
-	} else if (psub->type == SUBSYSTEM_ENGINE ) {
+	} else if (psub->type == SUBSYSTEM_ENGINE) {
 		// when an engine is destroyed, we must change the max velocity of the ship
 		// to be some fraction of its normal maximum value
 
 		if ( ship_p->subsys_info[type].aggregate_current_hits <= 0.0f ) {
 			mission_log_add_entry(LOG_SHIP_DISABLED, ship_p->ship_name, NULL );
-			ship_p->flags |= SF_DISABLED;				// add the disabled flag
+			ship_p->flags |= SF_DISABLED;
+		}
+	} else if (psub->type == SUBSYSTEM_SHIELD_GENERATOR) {
+		if ( ship_p->subsys_info[type].current_hits == 0.0f ) {
+			ship_obj->flags |= OF_NO_SHIELDS;
 		}
 	}
 

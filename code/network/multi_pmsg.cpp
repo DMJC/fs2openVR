@@ -436,6 +436,7 @@ char *Multi_msg_subsys_name[SUBSYSTEM_MAX] = {
 	"Weapons",
 	"Sensors",
 	"Solar Array",
+	"Shield Generator",
 	"Unknown"
 };
 

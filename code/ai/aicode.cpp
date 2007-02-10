@@ -11185,6 +11185,7 @@ void process_subobjects(int objnum)
 		case SUBSYSTEM_COMMUNICATION:
 		case SUBSYSTEM_WEAPONS:
 		case SUBSYSTEM_SENSORS:
+		case SUBSYSTEM_SHIELD_GENERATOR:
 		case SUBSYSTEM_UNKNOWN:
 			break;
 
@@ -13222,7 +13223,7 @@ int maybe_request_support(object *objp)
 
 	//	Set desire based on hull strength.
 	//	Note: We no longer repair hull, so this would cause repeated repair requests.
-	// Added back in upon mission flag condition - Goober5000
+	// Goober5000 - Added back in upon mission flag condition
 	if (The_mission.flags & MISSION_FLAG_SUPPORT_REPAIRS_HULL)
 	{
 		desire += 6 - (int) (get_hull_pct(objp) * 6.0f);
@@ -13233,6 +13234,10 @@ int maybe_request_support(object *objp)
 	desire += mrs_subsystem(shipp, SUBSYSTEM_COMMUNICATION);
 	desire += mrs_subsystem(shipp, SUBSYSTEM_WEAPONS);
 	desire += mrs_subsystem(shipp, SUBSYSTEM_SENSORS);
+
+	// Goober5000 - shields are key I would think
+	if (shipp->subsys_info[SUBSYSTEM_SHIELD_GENERATOR].num > 0)
+		desire += mrs_subsystem(shipp, SUBSYSTEM_SHIELD_GENERATOR);
 
 
 	//	Set desire based on percentage of secondary weapons.

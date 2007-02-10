@@ -533,7 +533,9 @@ static void set_subsystem_info(int model_num, model_subsystem *subsystemp, char 
 		subsystemp->type = SUBSYSTEM_GAS_COLLECT;
 	} else if ( strstr(lcdname, "activator") ) {
 		subsystemp->type = SUBSYSTEM_ACTIVATION;
-	}  else { // If unrecognized type, set to unknown so artist can continue working...
+	} else if ( strstr(lcdname, "shield") ) {
+		subsystemp->type = SUBSYSTEM_SHIELD_GENERATOR;
+	} else { // If unrecognized type, set to unknown so artist can continue working...
 		subsystemp->type = SUBSYSTEM_UNKNOWN;
 		mprintf(("Subsystem '%s' on ship %s is not recognized as a common subsystem type\n", dname, model_get(model_num)->filename));
 	}

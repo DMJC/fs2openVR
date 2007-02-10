@@ -6112,6 +6112,14 @@ void ship_recalc_subsys_strength( ship *shipp )
 		shipp->flags &= ~SF_DISABLED;
 		ship_reset_disabled_physics( &Objects[shipp->objnum], shipp->ship_info_index );
 	}
+
+	if (shipp->subsys_info[SUBSYSTEM_SHIELD_GENERATOR].num > 0)
+	{
+		if (shipp->subsys_info[SUBSYSTEM_SHIELD_GENERATOR].current_hits == 0.0f)
+			Objects[shipp->objnum].flags |= OF_NO_SHIELDS;
+		else
+			Objects[shipp->objnum].flags &= ~OF_NO_SHIELDS;
+	}
 }
 
 /**
@@ -13032,6 +13040,8 @@ void ship_model_start(object *objp)
 			case SUBSYSTEM_SOLAR:
 			case SUBSYSTEM_GAS_COLLECT:
 			case SUBSYSTEM_ACTIVATION:
+			case SUBSYSTEM_SHIELD_GENERATOR:
+				break;
 			case SUBSYSTEM_TURRET:
 				break;
 			default:
@@ -13145,6 +13155,7 @@ int ship_find_num_crewpoints(object *objp)
 		case SUBSYSTEM_ENGINE:
 		case SUBSYSTEM_GAS_COLLECT:
 		case SUBSYSTEM_ACTIVATION:
+		case SUBSYSTEM_SHIELD_GENERATOR:
 			break;
 		default:
 			Error(LOCATION, "Illegal subsystem type.\n");
@@ -13180,6 +13191,7 @@ int ship_find_num_turrets(object *objp)
 		case SUBSYSTEM_ENGINE:
 		case SUBSYSTEM_GAS_COLLECT:
 		case SUBSYSTEM_ACTIVATION:
+		case SUBSYSTEM_SHIELD_GENERATOR:
 			break;
 		default:
 			Error(LOCATION, "Illegal subsystem type.\n");
@@ -13786,7 +13798,12 @@ int ship_do_rearm_frame( object *objp, float frametime )
 			if ( (ssp->system_info->type == SUBSYSTEM_ENGINE) && (shipp->flags & SF_DISABLED) ) {
 				shipp->flags &= ~SF_DISABLED;
 				ship_reset_disabled_physics(objp, shipp->ship_info_index);
+//			} else if ( (ssp->system_info->type == SUBSYSTEM_TURRET) && (shipp->flags & SF_DISARMED) ) {
+//				shipp->flags &= ~SF_DISARMED;
+			} else if ( (ssp->system_info->type == SUBSYSTEM_SHIELD_GENERATOR) && (objp->flags & OF_NO_SHIELDS) ) {
+				objp->flags &= ~OF_NO_SHIELDS;
 			}
+
 			break;
 		}
 		ssp = GET_NEXT( ssp );
@@ -14383,6 +14400,9 @@ DCF(set_subsys, "Set the strength of a particular subsystem on player ship" )
 	} else if (arg == "radar") {
 		subsystem = SUBSYSTEM_RADAR;
 
+	} else if (arg == "shield") {
+		subsystem = SUBSYSTEM_SHIELD_GENERATOR;
+
 	} else if ((arg == "status") || (arg == "--status") || (arg == "?") || (arg == "--?")) {
 		dc_printf("Error: Must specify a subsystem.\n");
 		return;
@@ -14402,9 +14422,17 @@ DCF(set_subsys, "Set the strength of a particular subsystem on player ship" )
 		CLAMP(val_f, 0.0, 1.0);
 		ship_set_subsystem_strength( Player_ship, subsystem, val_f );
 		
-		if (subsystem == SUBSYSTEM_ENGINE) {
-			// If subsystem is an engine, set/clear the disabled flag
-			(val_f < ENGINE_MIN_STR) ? (Player_ship->flags |= SF_DISABLED) : (Player_ship->flags &= (~SF_DISABLED));
+		switch (subsystem) {
+			case SUBSYSTEM_ENGINE:
+				// Subsystem is an engine, set/clear the disabled flag
+				(val_f < ENGINE_MIN_STR) ? (Player_ship->flags |= SF_DISABLED) : (Player_ship->flags &= (~SF_DISABLED));
+				break;
+			case SUBSYSTEM_SHIELD_GENERATOR:
+				// Subsystem is a shield generator, set/clear the NO_SHIELDS flag
+				(val_f < 0.01f) ? (Player_obj->flags |= OF_NO_SHIELDS) : (Player_obj->flags &= (~OF_NO_SHIELDS));
+				break;
+			default:
+				// Nothing to do...
 		}
 	}
 }

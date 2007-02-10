@@ -54,14 +54,15 @@ extern int model_render_flags_size;
 #define SUBSYSTEM_TURRET			2
 #define SUBSYSTEM_RADAR				3
 #define SUBSYSTEM_NAVIGATION		4
-#define SUBSYSTEM_COMMUNICATION	5
+#define SUBSYSTEM_COMMUNICATION		5
 #define SUBSYSTEM_WEAPONS			6
 #define SUBSYSTEM_SENSORS			7
 #define SUBSYSTEM_SOLAR				8
 #define SUBSYSTEM_GAS_COLLECT		9
 #define SUBSYSTEM_ACTIVATION		10
-#define SUBSYSTEM_UNKNOWN			11
-#define SUBSYSTEM_MAX				12				//	maximum value for subsystem_xxx, for error checking
+#define SUBSYSTEM_SHIELD_GENERATOR	11
+#define SUBSYSTEM_UNKNOWN			12
+#define SUBSYSTEM_MAX				13				//	maximum value for subsystem_xxx, for error checking
 
 // Goober5000
 extern char *Subsystem_types[SUBSYSTEM_MAX];

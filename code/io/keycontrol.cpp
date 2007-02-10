@@ -868,6 +868,10 @@ void process_debug_keys(int k)
 					if ( sp->subsys_info[SUBSYSTEM_TURRET].aggregate_current_hits <= 0.0f ) {
 						mission_log_add_entry(LOG_SHIP_DISARMED, sp->ship_name, NULL );
 					}
+
+					if ( sp->subsys_info[SUBSYSTEM_SHIELD_GENERATOR].current_hits <= 0.0f ) {
+						objp->flags |= OF_NO_SHIELDS;			// add the no-shields flag
+					}
 				}
 			}
 			break;
