@@ -10,10 +10,23 @@
 
 #include "globalincs/pstypes.h"
 
+#include <array>
+#include <vector>
+
 #ifndef CONTROLS_CONFIG_H
 #define CONTROLS_CONFIG_H
 
 #define CONTROL_CONFIG_XSTR	507
+
+/*!
+ * These are used in the config_item for key mappings. A joystick can be 2 or greater
+ */
+enum Controller_index
+{
+	CON_KEYBOARD = 0,
+	CON_MOUSE = 1,
+	CON_JOY = 2
+};
 
 /*!
  * These are used to index a corresponding joystick axis value from an array.
@@ -58,19 +71,38 @@ enum CC_type {
 /*!
  * Control configuration item type.
  */
-typedef struct config_item {
-	short key_default;		//!< default key bound to action
-	short joy_default;		//!< default joystick button bound to action
-	char tab;				//!< what tab (category) it belongs in
-	bool hasXSTR;			//!< whether we should translate this with an XSTR
-	char *text;				//!< describes the action in the config screen
-	char type;				//!< manner control should be checked in
-	short key_id;			//!< actual key bound to action
-	short joy_id;			//!< joystick button bound to action
-	int used;				//!< has control been used yet in mission?  If so, this is the timestamp
-	bool disabled;			//!< whether this action should be available at all
-	bool continuous_ongoing;//!< whether this action is a continuous one and is currently ongoing
-} config_item;
+class config_item {
+public:
+	std::vector<short> defaults;    //!< default bound keys/buttons to action
+	std::vector<short> ids;         //!< keys/buttons currently bound to action short defaults[CON_KEYBOARD];
+	
+	const char *text;               //!< describes the action in the config screen
+	
+	int  used;                  //!< has control been used yet in mission?  If so, this is the timestamp
+	
+	char tab;                   //!< what tab (category) it belongs in
+	char type;                  //!< manner control should be checked in
+
+	bool hasXSTR;               //!< whether we should translate this with an XSTR
+	bool disabled;              //!< whether this action should be available at all
+	bool continuous_ongoing;    //!< whether this action is a continuous one and is currently ongoing
+
+	config_item(std::initializer_list<short> defaults_in, std::initializer_list<short> ids_in,
+		char* text_in,
+		int used_in,
+		char tab_in, char type_in,
+		bool hasXSTR_in, bool disabled_in, bool continuous_ongoing_in)
+		: defaults(defaults_in), ids(ids_in), text(text_in), used(used_in), tab(tab_in), type(type_in), hasXSTR(hasXSTR_in),
+		disabled(disabled_in), continuous_ongoing(continuous_ongoing_in)
+	{
+	};
+
+	config_item()
+		: defaults({ -1, -1, -1 }), ids({ -1, -1, -1 }), text(""), tab(-1), type(-1), hasXSTR(false), disabled(false),
+		continuous_ongoing(false)
+	{
+	};
+};
 
 /*!
  * All available actions

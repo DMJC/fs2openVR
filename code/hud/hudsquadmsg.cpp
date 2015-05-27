@@ -283,7 +283,7 @@ void hud_squadmsg_end()
 	// move through all keys saved and restore their orignal values.
 	for ( i=0; i<num_keys_saved; i++ ) {
 		ksp = &key_save[i];
-		Control_config[ksp->option_num].key_id = (short) ksp->key_value;
+		Control_config[ksp->option_num].ids[CON_KEYBOARD] = (short) ksp->key_value;
 	}
 */
 
@@ -2127,7 +2127,7 @@ void hud_squadmsg_save_keys( int do_scroll )
 /*
 	for ( j=0; j<MAX_KEYS_USED; j++ ) {
 		for ( i=0; Control_config[i].text[0]; i++ ) {	// the text field in this structure is empty at the end of the config list
-			if ( Control_config[i].key_id == keys_used[j] ) {		// this is true if we have a match
+			if ( Control_config[i].ids[CON_KEYBOARD] == keys_used[j] ) {		// this is true if we have a match
 
 				// if we are not saving scrolling keys and we are trying to match page up and page down
 				// then skip them.

@@ -619,3 +619,7 @@ int joystick_read_raw_axis(int num_axes, int *axis)
 	
 	return 1;
 }
+
+int joy_get_num_sticks() {
+	return joy_num_sticks;
+}

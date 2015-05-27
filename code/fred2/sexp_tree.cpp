@@ -5571,8 +5571,8 @@ sexp_list_item *sexp_tree::get_listing_opf_keypress()
 	sexp_list_item head;
 
 	for (i=0; i<CCFG_MAX; i++) {
-		if (Control_config[i].key_default > 0 && !Control_config[i].disabled) {
-			head.add_data_dup(textify_scancode(Control_config[i].key_default));
+		if (Control_config[i].defaults[CON_KEYBOARD] > 0 && !Control_config[i].disabled) {
+			head.add_data_dup(textify_scancode(Control_config[i].defaults[CON_KEYBOARD]));
 		}
 	}
 

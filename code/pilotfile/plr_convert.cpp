@@ -142,16 +142,16 @@ void pilotfile_convert::plr_import_controls()
 	plr->controls.reserve(num_controls);
 
 	for (idx = 0; idx < num_controls; idx++) {
-		con.key_id = cfread_short(cfp);
+		con.ids[CON_KEYBOARD] = cfread_short(cfp);
 
-		if (con.key_id == 255) {
-			con.key_id = -1;
+		if (con.ids[CON_KEYBOARD] == 255) {
+			con.ids[CON_KEYBOARD] = -1;
 		}
 
-		con.joy_id = cfread_short(cfp);
+		con.ids[CON_JOY] = cfread_short(cfp);
 
-		if (con.joy_id == 255) {
-			con.joy_id = -1;
+		if (con.ids[CON_JOY] == 255) {
+			con.ids[CON_JOY] = -1;
 		}
 
 		plr->controls.push_back( con );
@@ -765,8 +765,8 @@ void pilotfile_convert::plr_export_controls()
 	cfwrite_ushort((unsigned short)plr->controls.size(), cfp);
 
 	for (idx = 0; idx < plr->controls.size(); idx++) {
-		cfwrite_short(plr->controls[idx].key_id, cfp);
-		cfwrite_short(plr->controls[idx].joy_id, cfp);
+		cfwrite_short(plr->controls[idx].ids[CON_KEYBOARD], cfp);
+		cfwrite_short(plr->controls[idx].ids[CON_JOY], cfp);
 		// placeholder? for future mouse_id?
 		cfwrite_short(-1, cfp);
 	}
