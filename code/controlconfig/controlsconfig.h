@@ -73,10 +73,10 @@ enum CC_type {
  */
 class config_item {
 public:
-	std::vector<short> defaults;    //!< default bound keys/buttons to action
-	std::vector<short> ids;         //!< keys/buttons currently bound to action short defaults[CON_KEYBOARD];
+	std::vector<short> default;     //!< default bound keys/buttons to action
+	std::vector<short> id;          //!< keys/buttons currently bound to action short default[CON_KEYBOARD];
 	
-	const char *text;               //!< describes the action in the config screen
+	char *text;               //!< describes the action in the config screen
 	
 	int  used;                  //!< has control been used yet in mission?  If so, this is the timestamp
 	
@@ -87,18 +87,18 @@ public:
 	bool disabled;              //!< whether this action should be available at all
 	bool continuous_ongoing;    //!< whether this action is a continuous one and is currently ongoing
 
-	config_item(std::initializer_list<short> defaults_in, std::initializer_list<short> ids_in,
+	config_item(std::initializer_list<short> default_in, std::initializer_list<short> id_in,
 		char* text_in,
 		int used_in,
 		char tab_in, char type_in,
 		bool hasXSTR_in, bool disabled_in, bool continuous_ongoing_in)
-		: defaults(defaults_in), ids(ids_in), text(text_in), used(used_in), tab(tab_in), type(type_in), hasXSTR(hasXSTR_in),
+		: default(default_in), id(id_in), text(text_in), used(used_in), tab(tab_in), type(type_in), hasXSTR(hasXSTR_in),
 		disabled(disabled_in), continuous_ongoing(continuous_ongoing_in)
 	{
 	};
 
 	config_item()
-		: defaults({ -1, -1, -1 }), ids({ -1, -1, -1 }), text(""), tab(-1), type(-1), hasXSTR(false), disabled(false),
+		: default({ -1, -1, -1 }), id({ -1, -1, -1 }), text(""), tab(-1), type(-1), hasXSTR(false), disabled(false),
 		continuous_ongoing(false)
 	{
 	};

@@ -1163,8 +1163,8 @@ void pilotfile::csg_read_controls()
 		id3 = cfread_short(cfp);	// unused, at the moment
 
 		if (idx < CCFG_MAX) {
-			Control_config[idx].ids[CON_KEYBOARD] = id1;
-			Control_config[idx].ids[CON_JOY] = id2;
+			Control_config[idx].id[CON_KEYBOARD] = id1;
+			Control_config[idx].id[CON_JOY] = id2;
 		}
 	}
 }
@@ -1178,8 +1178,8 @@ void pilotfile::csg_write_controls()
 	cfwrite_ushort(CCFG_MAX, cfp);
 
 	for (idx = 0; idx < CCFG_MAX; idx++) {
-		cfwrite_short(Control_config[idx].ids[CON_KEYBOARD], cfp);
-		cfwrite_short(Control_config[idx].ids[CON_JOY], cfp);
+		cfwrite_short(Control_config[idx].id[CON_KEYBOARD], cfp);
+		cfwrite_short(Control_config[idx].id[CON_JOY], cfp);
 		// placeholder? for future mouse_id?
 		cfwrite_short(-1, cfp);
 	}

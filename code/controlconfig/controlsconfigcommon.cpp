@@ -418,16 +418,16 @@ void set_modifier_status()
 	Ctrl_is_modifier = 0;
 
 	for (i=0; i<CCFG_MAX; i++) {
-		if (Control_config[i].ids[CON_KEYBOARD] < 0)
+		if (Control_config[i].id[CON_KEYBOARD] < 0)
 			continue;
 
-		if (Control_config[i].ids[CON_KEYBOARD] & KEY_ALTED)
+		if (Control_config[i].id[CON_KEYBOARD] & KEY_ALTED)
 			Alt_is_modifier = 1;
 
-		if (Control_config[i].ids[CON_KEYBOARD] & KEY_SHIFTED)
+		if (Control_config[i].id[CON_KEYBOARD] & KEY_SHIFTED)
 			Shift_is_modifier = 1;
 
-		if (Control_config[i].ids[CON_KEYBOARD] & KEY_CTRLED) {
+		if (Control_config[i].id[CON_KEYBOARD] & KEY_CTRLED) {
 			Assert(0);  // get Alan
 			Ctrl_is_modifier = 1;
 		}
@@ -478,14 +478,14 @@ int translate_key_to_index(const char *key, bool find_override)
 		// convert scancode to Control_config index
 		if (find_override) {
 			for (i=0; i<CCFG_MAX; i++) {
-				if (!Control_config[i].disabled && Control_config[i].ids[CON_KEYBOARD] == index) {
+				if (!Control_config[i].disabled && Control_config[i].id[CON_KEYBOARD] == index) {
 					index = i;
 					break;
 				}
 			}
 		} else {
 			for (i=0; i<CCFG_MAX; i++) {
-				if (!Control_config[i].disabled && Control_config[i].defaults[CON_KEYBOARD] == index) {
+				if (!Control_config[i].disabled && Control_config[i].default[CON_KEYBOARD] == index) {
 					index = i;
 					break;
 				}
@@ -519,8 +519,8 @@ char *translate_key(char *key)
 		return NULL;
 	}
 
-	key_code = Control_config[index].ids[CON_KEYBOARD];
-	joy_code = Control_config[index].ids[CON_JOY];
+	key_code = Control_config[index].id[CON_KEYBOARD];
+	joy_code = Control_config[index].id[CON_JOY];
 
 	Failed_key_index = index;
 
@@ -836,8 +836,8 @@ void control_config_common_load_overrides()
 
 				if (!strcmp(szTempBuffer, r_ccConfig.text)) {
 					/**
-					* short defaults[CON_KEYBOARD];
-					* short defaults[CON_JOY];
+					* short default[CON_KEYBOARD];
+					* short default[CON_JOY];
 					* char tab;
 					* bool hasXSTR;
 					* char type;
@@ -847,31 +847,31 @@ void control_config_common_load_overrides()
 
 					if (optional_string("$Key Default:")) {
 						if (optional_string("NONE")) {
-							r_ccConfig.defaults[CON_KEYBOARD] = (short)-1;
+							r_ccConfig.default[CON_KEYBOARD] = (short)-1;
 						} else {
 							stuff_string(szTempBuffer, F_NAME, iBufferLength);
-							r_ccConfig.defaults[CON_KEYBOARD] = (short)mKeyNameToVal[szTempBuffer];
+							r_ccConfig.default[CON_KEYBOARD] = (short)mKeyNameToVal[szTempBuffer];
 						}
 					}
 
 					if (optional_string("$Joy Default:")) {
 						stuff_int(&iTemp);
-						r_ccConfig.defaults[CON_JOY] = (short)iTemp;
+						r_ccConfig.default[CON_JOY] = (short)iTemp;
 					}
 
 					if (optional_string("$Key Mod Shift:")) {
 						stuff_int(&iTemp);
-						r_ccConfig.defaults[CON_KEYBOARD] |= (iTemp == 1) ? KEY_SHIFTED : 0;
+						r_ccConfig.default[CON_KEYBOARD] |= (iTemp == 1) ? KEY_SHIFTED : 0;
 					}
 
 					if (optional_string("$Key Mod Alt:")) {
 						stuff_int(&iTemp);
-						r_ccConfig.defaults[CON_KEYBOARD] |= (iTemp == 1) ? KEY_ALTED : 0;
+						r_ccConfig.default[CON_KEYBOARD] |= (iTemp == 1) ? KEY_ALTED : 0;
 					}
 
 					if (optional_string("$Key Mod Ctrl:")) {
 						stuff_int(&iTemp);
-						r_ccConfig.defaults[CON_KEYBOARD] |= (iTemp == 1) ? KEY_CTRLED : 0;
+						r_ccConfig.default[CON_KEYBOARD] |= (iTemp == 1) ? KEY_CTRLED : 0;
 					}
 
 					if (optional_string("$Category:")) {

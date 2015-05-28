@@ -397,7 +397,7 @@ void control_config_conflict_check()
 
 	for (i=0; i<CCFG_MAX; i++) {
 		Conflicts[i].key = Conflicts[i].joy = -1;
-		switch (Control_config[i].ids[CON_KEYBOARD]) {
+		switch (Control_config[i].id[CON_KEYBOARD]) {
 			case KEY_LSHIFT:
 			case KEY_RSHIFT:
 				shift = i;
@@ -416,15 +416,15 @@ void control_config_conflict_check()
 
 	for (i=0; i<CCFG_MAX-1; i++) {
 		for (j=i+1; j<CCFG_MAX; j++) {
-			if ((Control_config[i].ids[CON_KEYBOARD] >= 0) && (Control_config[i].ids[CON_KEYBOARD] == Control_config[j].ids[CON_KEYBOARD])) {
+			if ((Control_config[i].id[CON_KEYBOARD] >= 0) && (Control_config[i].id[CON_KEYBOARD] == Control_config[j].id[CON_KEYBOARD])) {
 				// If one of the conflicting keys is disabled, then this silently clears
 				// the disabled key to prevent the conflict; a conflict is recorded only
 				// if both keys are enabled
 
 				if (Control_config[i].disabled)
-					Control_config[i].ids[CON_KEYBOARD] = (short) -1;
+					Control_config[i].id[CON_KEYBOARD] = (short) -1;
 				else if (Control_config[j].disabled)
-					Control_config[j].ids[CON_KEYBOARD] = (short) -1;
+					Control_config[j].id[CON_KEYBOARD] = (short) -1;
 				else {
 					Conflicts[i].key = j;
 					Conflicts[j].key = i;
@@ -433,13 +433,13 @@ void control_config_conflict_check()
 				}
 			}
 
-			if ((Control_config[i].ids[CON_JOY] >= 0) && (Control_config[i].ids[CON_JOY] == Control_config[j].ids[CON_JOY])) {
+			if ((Control_config[i].id[CON_JOY] >= 0) && (Control_config[i].id[CON_JOY] == Control_config[j].id[CON_JOY])) {
 				// Same as above
 
 				if (Control_config[i].disabled)
-					Control_config[i].ids[CON_JOY] = (short) -1;
+					Control_config[i].id[CON_JOY] = (short) -1;
 				else if (Control_config[j].disabled)
-					Control_config[j].ids[CON_JOY] = (short) -1;
+					Control_config[j].id[CON_JOY] = (short) -1;
 				else {
 					Conflicts[i].joy = j;
 					Conflicts[j].joy = i;
@@ -474,8 +474,8 @@ void control_config_list_prepare()
 	Num_cc_lines = y = z = 0;
 	while (z < CCFG_MAX) {
 		if (Control_config[z].tab == Tab && !Control_config[z].disabled) {
-			k = Control_config[z].ids[CON_KEYBOARD];
-			j = Control_config[z].ids[CON_JOY];
+			k = Control_config[z].id[CON_KEYBOARD];
+			j = Control_config[z].id[CON_JOY];
 
 			if (Control_config[z].hasXSTR) {
 				Cc_lines[Num_cc_lines].label = XSTR(Control_config[z].text, CONTROL_CONFIG_XSTR + z);
@@ -607,7 +607,7 @@ int control_config_undo_last()
 
 				z &= ~JOY_AXIS;
 				ptr = &Config_item_undo->list[i];
-				Axis_map_to[z] = ptr->ids[CON_JOY];
+				Axis_map_to[z] = ptr->id[CON_JOY];
 				Invert_axis[z] = ptr->used;
 
 			} else {
@@ -630,7 +630,7 @@ void control_config_save_axis_undo(int axis)
 
 	memset( &item, 0, sizeof(config_item) );
 
-	item.ids[CON_JOY] = (short) Axis_map_to[axis];
+	item.id[CON_JOY] = (short) Axis_map_to[axis];
 	item.used = Invert_axis[axis];
 
 	ptr = get_undo_block(1);
@@ -645,7 +645,7 @@ void control_config_bind_key(int i, int key)
 	ptr = get_undo_block(1);
 	ptr->index[0] = i;
 	ptr->list[0] = Control_config[i];
-	Control_config[i].ids[CON_KEYBOARD] = (short) key;
+	Control_config[i].id[CON_KEYBOARD] = (short) key;
 }
 
 void control_config_bind_joy(int i, int joy)
@@ -655,7 +655,7 @@ void control_config_bind_joy(int i, int joy)
 	ptr = get_undo_block(1);
 	ptr->index[0] = i;
 	ptr->list[0] = Control_config[i];
-	Control_config[i].ids[CON_JOY] = (short) joy;
+	Control_config[i].id[CON_JOY] = (short) joy;
 }
 
 void control_config_bind_axis(int i, int axis)
@@ -691,7 +691,7 @@ int control_config_remove_binding()
 		return 0;
 	}
 
-	if ((Control_config[z].ids[CON_JOY] < 0) && (Control_config[z].ids[CON_KEYBOARD] < 0)) {
+	if ((Control_config[z].id[CON_JOY] < 0) && (Control_config[z].id[CON_KEYBOARD] < 0)) {
 		gamesnd_play_iface(SND_GENERAL_FAIL);
 		return -1;
 	}
@@ -701,12 +701,12 @@ int control_config_remove_binding()
 	ptr->index[0] = z;
 	ptr->list[0] = Control_config[z];
 
-	if (Selected_item && (Control_config[z].ids[CON_JOY] >= 0)) {  // if not just key selected (which would be 0)
-		Control_config[z].ids[CON_JOY] = (short) -1;
+	if (Selected_item && (Control_config[z].id[CON_JOY] >= 0)) {  // if not just key selected (which would be 0)
+		Control_config[z].id[CON_JOY] = (short) -1;
 	}
 
-	if ((Selected_item != 1) && (Control_config[z].ids[CON_KEYBOARD] >= 0)) {  // if not just joy button selected (1)
-		Control_config[z].ids[CON_KEYBOARD] = (short) -1;
+	if ((Selected_item != 1) && (Control_config[z].id[CON_KEYBOARD] >= 0)) {  // if not just joy button selected (1)
+		Control_config[z].id[CON_KEYBOARD] = (short) -1;
 	}
 
 	control_config_conflict_check();
@@ -752,7 +752,7 @@ int control_config_clear_other()
 			if ((Axis_map_to[i] == Axis_map_to[z]) && (i != z)) {
 				memset( &item, 0, sizeof(config_item) );
 
-				item.ids[CON_JOY] = (short) Axis_map_to[i];
+				item.id[CON_JOY] = (short) Axis_map_to[i];
 				item.used = Invert_axis[i];
 
 				ptr->index[j] = i | JOY_AXIS;
@@ -769,7 +769,7 @@ int control_config_clear_other()
 	}
 
 	for (i=0; i<CCFG_MAX; i++) {
-		if ( (Control_config[i].ids[CON_KEYBOARD] == Control_config[z].ids[CON_KEYBOARD]) || (Control_config[i].ids[CON_JOY] == Control_config[z].ids[CON_JOY]) ) {
+		if ( (Control_config[i].id[CON_KEYBOARD] == Control_config[z].id[CON_KEYBOARD]) || (Control_config[i].id[CON_JOY] == Control_config[z].id[CON_JOY]) ) {
 			if (i != z) {
 				total++;
 			}
@@ -780,7 +780,7 @@ int control_config_clear_other()
 		return -1;
 	}
 
-	if ((Control_config[z].ids[CON_JOY] < 0) && (Control_config[z].ids[CON_KEYBOARD] < 0)) {
+	if ((Control_config[z].id[CON_JOY] < 0) && (Control_config[z].id[CON_KEYBOARD] < 0)) {
 		gamesnd_play_iface(SND_GENERAL_FAIL);
 		return -1;
 	}
@@ -788,18 +788,18 @@ int control_config_clear_other()
 	// now, back up the old bindings so we can undo if we want to
 	ptr = get_undo_block(total);
 	for (i=j=0; i<CCFG_MAX; i++) {
-		if ( (Control_config[i].ids[CON_KEYBOARD] == Control_config[z].ids[CON_KEYBOARD]) || (Control_config[i].ids[CON_JOY] == Control_config[z].ids[CON_JOY]) ) {
+		if ( (Control_config[i].id[CON_KEYBOARD] == Control_config[z].id[CON_KEYBOARD]) || (Control_config[i].id[CON_JOY] == Control_config[z].id[CON_JOY]) ) {
 			if (i != z) {
 				ptr->index[j] = i;
 				ptr->list[j] = Control_config[i];
 				j++;
 
-				if (Control_config[i].ids[CON_KEYBOARD] == Control_config[z].ids[CON_KEYBOARD]) {
-					Control_config[i].ids[CON_KEYBOARD] = (short) -1;
+				if (Control_config[i].id[CON_KEYBOARD] == Control_config[z].id[CON_KEYBOARD]) {
+					Control_config[i].id[CON_KEYBOARD] = (short) -1;
 				}
 
-				if (Control_config[i].ids[CON_JOY] == Control_config[z].ids[CON_JOY]) {
-					Control_config[i].ids[CON_JOY] = (short) -1;
+				if (Control_config[i].id[CON_JOY] == Control_config[z].id[CON_JOY]) {
+					Control_config[i].id[CON_JOY] = (short) -1;
 				}
 			}
 		}
@@ -817,7 +817,7 @@ int control_config_clear_all()
 
 	// first, determine how many bindings need to be changed
 	for (i=0; i<CCFG_MAX; i++) {
-		if ((Control_config[i].ids[CON_KEYBOARD] >= 0) || (Control_config[i].ids[CON_JOY] >= 0)) {
+		if ((Control_config[i].id[CON_KEYBOARD] >= 0) || (Control_config[i].id[CON_JOY] >= 0)) {
 			total++;
 		}
 	}
@@ -830,7 +830,7 @@ int control_config_clear_all()
 	// now, back up the old bindings so we can undo if we want to
 	ptr = get_undo_block(total);
 	for (i=j=0; i<CCFG_MAX; i++) {
-		if ((Control_config[i].ids[CON_KEYBOARD] >= 0) || (Control_config[i].ids[CON_JOY] >= 0)) {
+		if ((Control_config[i].id[CON_KEYBOARD] >= 0) || (Control_config[i].id[CON_JOY] >= 0)) {
 			ptr->index[j] = i;
 			ptr->list[j] = Control_config[i];
 			j++;
@@ -839,7 +839,7 @@ int control_config_clear_all()
 
 	Assert(j == total);
 	for (i=0; i<CCFG_MAX; i++) {
-		Control_config[i].ids[CON_KEYBOARD] = Control_config[i].ids[CON_JOY] = -1;
+		Control_config[i].id[CON_KEYBOARD] = Control_config[i].id[CON_JOY] = -1;
 	}
 
 	control_config_conflict_check();
@@ -890,7 +890,7 @@ int control_config_do_reset()
 	
 	// first, determine how many bindings need to be changed
 	for (i=0; i<CCFG_MAX; i++) {
-		if ((Control_config[i].ids[CON_KEYBOARD] != preset[i].defaults[CON_KEYBOARD]) || (Control_config[i].ids[CON_JOY] != preset[i].defaults[CON_JOY])) {
+		if ((Control_config[i].id[CON_KEYBOARD] != preset[i].default[CON_KEYBOARD]) || (Control_config[i].id[CON_JOY] != preset[i].default[CON_JOY])) {
 			total++;
 		}
 	}
@@ -909,7 +909,7 @@ int control_config_do_reset()
 	// now, back up the old bindings so we can undo if we want to
 	ptr = get_undo_block(total);
 	for (i=j=0; i<CCFG_MAX; i++) {
-		if ((Control_config[i].ids[CON_KEYBOARD] != preset[i].defaults[CON_KEYBOARD]) || (Control_config[i].ids[CON_JOY] != preset[i].defaults[CON_JOY])) {
+		if ((Control_config[i].id[CON_KEYBOARD] != preset[i].default[CON_KEYBOARD]) || (Control_config[i].id[CON_JOY] != preset[i].default[CON_JOY])) {
 			ptr->index[j] = i;
 			ptr->list[j] = Control_config[i];
 			j++;
@@ -920,7 +920,7 @@ int control_config_do_reset()
 		if ((Axis_map_to[i] != control_config_axis_default(i)) || (Invert_axis[i] != Invert_axis_defaults[i])) {
 			memset( &item, 0, sizeof(config_item) );
 
-			item.ids[CON_JOY] = (short) Axis_map_to[i];
+			item.id[CON_JOY] = (short) Axis_map_to[i];
 			item.used = Invert_axis[i];
 
 			ptr->index[j] = i | JOY_AXIS;
@@ -956,11 +956,11 @@ void control_config_reset_defaults(int presetnum)
 
 	// Reset keyboard defaults
 	for (i=0; i<CCFG_MAX; i++) {
-		// Note that defaults[CON_KEYBOARD] and defaults[CON_JOY] are NOT overwritten here;
+		// Note that default[CON_KEYBOARD] and default[CON_JOY] are NOT overwritten here;
 		// they should retain the values of the first preset because
 		// for example the key-pressed SEXP works off the defaults of the first preset
-		Control_config[i].ids[CON_KEYBOARD] = preset[i].defaults[CON_KEYBOARD];
-		Control_config[i].ids[CON_JOY] = preset[i].defaults[CON_JOY];
+		Control_config[i].id[CON_KEYBOARD] = preset[i].default[CON_KEYBOARD];
+		Control_config[i].id[CON_JOY] = preset[i].default[CON_JOY];
 		Control_config[i].tab = preset[i].tab;
 		Control_config[i].hasXSTR = preset[i].hasXSTR;
 		Control_config[i].type = preset[i].type;
@@ -1046,7 +1046,7 @@ void control_config_toggle_modifier(int bit)
 
 	z = Cc_lines[Selected_line].cc_index;
 	Assert(!(z & JOY_AXIS));
-	k = Control_config[z].ids[CON_KEYBOARD];
+	k = Control_config[z].id[CON_KEYBOARD];
 	if (k < 0) {
 		gamesnd_play_iface(SND_GENERAL_FAIL);
 		return;
@@ -1642,7 +1642,7 @@ void control_config_do_frame(float frametime)
 			z = -1;
 			if (k > 0) {
 				for (i=0; i<CCFG_MAX; i++) {
-					if (Control_config[i].ids[CON_KEYBOARD] == k) {
+					if (Control_config[i].id[CON_KEYBOARD] == k) {
 						z = i;
 						break;
 					}
@@ -1653,7 +1653,7 @@ void control_config_do_frame(float frametime)
 				if (joy_down_count(i, 1)) {
 					j = i;
 					for (i=0; i<CCFG_MAX; i++) { //-V535
-						if (Control_config[i].ids[CON_JOY] == j) {
+						if (Control_config[i].id[CON_JOY] == j) {
 							z = i;
 							break;
 						}
@@ -1673,7 +1673,7 @@ void control_config_do_frame(float frametime)
 				for (j=0; j<MOUSE_NUM_BUTTONS; j++) {
 					if (mouse_down(1 << j)) {
 						for (i=0; i<CCFG_MAX; i++) {
-							if (Control_config[i].ids[CON_JOY] == j) {
+							if (Control_config[i].id[CON_JOY] == j) {
 								z = i;
 								for (size_t buttonid=0; buttonid<NUM_BUTTONS; buttonid++){
 									CC_Buttons[gr_screen.res][buttonid].button.reset();
@@ -1711,7 +1711,7 @@ void control_config_do_frame(float frametime)
 
 		if (!z) {
 			z = Cc_lines[Selected_line].cc_index;
-			k = Control_config[z].ids[CON_KEYBOARD];
+			k = Control_config[z].id[CON_KEYBOARD];
 			if ( (k == KEY_LALT) || (k == KEY_RALT) || (k == KEY_LSHIFT) || (k == KEY_RSHIFT) ) {
 				CC_Buttons[gr_screen.res][ALT_TOGGLE].button.enable(0);
 				CC_Buttons[gr_screen.res][SHIFT_TOGGLE].button.enable(0);
@@ -1905,7 +1905,7 @@ void control_config_do_frame(float frametime)
 			}
 
 		} else {
-			z = Control_config[z].ids[CON_KEYBOARD];
+			z = Control_config[z].id[CON_KEYBOARD];
 			if (z >= 0) {
 				if (z & KEY_SHIFTED) {
 					CC_Buttons[gr_screen.res][SHIFT_TOGGLE].button.draw_forced(2);
@@ -1996,8 +1996,8 @@ void control_config_do_frame(float frametime)
 		}
 
 		if (!(z & JOY_AXIS)) {
-			k = Control_config[z].ids[CON_KEYBOARD];
-			j = Control_config[z].ids[CON_JOY];
+			k = Control_config[z].id[CON_KEYBOARD];
+			j = Control_config[z].id[CON_JOY];
 			x = Control_list_key_x[gr_screen.res];
 			jptr = NULL;
 			*buf = 0;
@@ -2117,7 +2117,7 @@ void control_config_do_frame(float frametime)
 			config_item *this_preset = Control_config_presets[i];
 
 			for (int j=0; j<CCFG_MAX; j++) {
-				if (!Control_config[j].disabled && Control_config[j].ids[CON_KEYBOARD] != this_preset[j].ids[CON_KEYBOARD]) {
+				if (!Control_config[j].disabled && Control_config[j].id[CON_KEYBOARD] != this_preset[j].id[CON_KEYBOARD]) {
 					this_preset_matches = false;
 					break;
 				}
@@ -2157,8 +2157,8 @@ void clear_key_binding(short key)
 	int i;
 
 	for (i=0; i<CCFG_MAX; i++) {
-		if (Control_config[i].ids[CON_KEYBOARD] == key) {
-			Control_config[i].ids[CON_KEYBOARD] = -1;
+		if (Control_config[i].id[CON_KEYBOARD] == key) {
+			Control_config[i].id[CON_KEYBOARD] = -1;
 		}
 	}
 }
@@ -2177,12 +2177,12 @@ float check_control_timef(int id)
 		return 0.0f;
 	}
 
-	t1 = key_down_timef(Control_config[id].ids[CON_KEYBOARD]);
+	t1 = key_down_timef(Control_config[id].id[CON_KEYBOARD]);
 	if (t1) {
 		control_used(id);
 	}
 
-	t2 = joy_down_time(Control_config[id].ids[CON_JOY]);
+	t2 = joy_down_time(Control_config[id].id[CON_JOY]);
 	if (t2) {
 		control_used(id);
 	}
@@ -2232,13 +2232,13 @@ int check_control_used(int id, int key)
 		return 0;
 
 	if (Control_config[id].type == CC_TYPE_CONTINUOUS) {
-		if (joy_down(Control_config[id].ids[CON_JOY]) || joy_down_count(Control_config[id].ids[CON_JOY], 1)) {
+		if (joy_down(Control_config[id].id[CON_JOY]) || joy_down_count(Control_config[id].id[CON_JOY], 1)) {
 			control_used(id);
 			return 1;
 		}
 
-		if ((Control_config[id].ids[CON_JOY] >= 0) && (Control_config[id].ids[CON_JOY] < MOUSE_NUM_BUTTONS)) {
-			if (mouse_down(1 << Control_config[id].ids[CON_JOY]) || mouse_down_count(1 << Control_config[id].ids[CON_JOY])) {
+		if ((Control_config[id].id[CON_JOY] >= 0) && (Control_config[id].id[CON_JOY] < MOUSE_NUM_BUTTONS)) {
+			if (mouse_down(1 << Control_config[id].id[CON_JOY]) || mouse_down_count(1 << Control_config[id].id[CON_JOY])) {
 				control_used(id);
 				return 1;
 			}
@@ -2254,7 +2254,7 @@ int check_control_used(int id, int key)
 			mask |= KEY_ALTED;
 		}
 
-		z = Control_config[id].ids[CON_KEYBOARD];
+		z = Control_config[id].id[CON_KEYBOARD];
 		if (z >= 0) {
 			if ( (z != KEY_LALT) && (z != KEY_RALT) && (z != KEY_LSHIFT) && (z != KEY_RSHIFT) ) {
 				// if current modifiers don't match action's modifiers, don't register control active.
@@ -2274,7 +2274,7 @@ int check_control_used(int id, int key)
 		return 0;
 	}
 
-	if ((Control_config[id].ids[CON_KEYBOARD] == key) || joy_down_count(Control_config[id].ids[CON_JOY], 1) || mouse_down_count(1 << Control_config[id].ids[CON_JOY])) {
+	if ((Control_config[id].id[CON_KEYBOARD] == key) || joy_down_count(Control_config[id].id[CON_JOY], 1) || mouse_down_count(1 << Control_config[id].id[CON_JOY])) {
 		//mprintf(("Key used %d", key));
 		control_used(id);
 		return 1;
@@ -2403,7 +2403,7 @@ void control_config_clear()
 
 	// Reset keyboard defaults
 	for (i=0; i<CCFG_MAX; i++) {
-		Control_config[i].ids[CON_KEYBOARD] = Control_config[i].ids[CON_JOY] = -1;
+		Control_config[i].id[CON_KEYBOARD] = Control_config[i].id[CON_JOY] = -1;
 	}
 }
 

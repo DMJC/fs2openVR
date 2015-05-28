@@ -119,16 +119,16 @@ char *gameplay_help_control_text(int id, char *buf)
 
 	ci = &Control_config[id];
 
-	if ( ci->ids[CON_KEYBOARD] >= 0 ) {
-		strcpy(buf, textify_scancode(ci->ids[CON_KEYBOARD]));
+	if ( ci->id[CON_KEYBOARD] >= 0 ) {
+		strcpy(buf, textify_scancode(ci->id[CON_KEYBOARD]));
 		has_key=1;
 	}
 
-	if ( ci->ids[CON_JOY] >= 0 ) {
+	if ( ci->id[CON_JOY] >= 0 ) {
 		if ( has_key ) {
 			strcat(buf, XSTR( ", ", 129));
 		}
-		strcat(buf, Joy_button_text[ci->ids[CON_JOY]]);
+		strcat(buf, Joy_button_text[ci->id[CON_JOY]]);
 		has_joy=1;
 	}
 
@@ -152,16 +152,16 @@ void gameplay_help_blit_control_line(int x, int y, int id)
 
 	buf[0] = 0;
 
-	if ( ci->ids[CON_KEYBOARD] >= 0 ) {
-		strcpy_s(buf, textify_scancode(ci->ids[CON_KEYBOARD]));
+	if ( ci->id[CON_KEYBOARD] >= 0 ) {
+		strcpy_s(buf, textify_scancode(ci->id[CON_KEYBOARD]));
 		has_key=1;
 	}
 
-	if ( ci->ids[CON_JOY] >= 0 ) {
+	if ( ci->id[CON_JOY] >= 0 ) {
 		if ( has_key ) {
 			strcat_s(buf, XSTR( ", ", 129));
 		}
-		strcat_s(buf, Joy_button_text[ci->ids[CON_JOY]]);
+		strcat_s(buf, Joy_button_text[ci->id[CON_JOY]]);
 		has_joy=1;
 	}
 
