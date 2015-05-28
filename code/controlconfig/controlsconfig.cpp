@@ -628,7 +628,7 @@ void control_config_save_axis_undo(int axis)
 	config_item_undo *ptr;
 	config_item item;
 
-	memset( &item, 0, sizeof(config_item) );
+	item.clear();
 
 	item.id[CON_JOY] = (short) Axis_map_to[axis];
 	item.used = Invert_axis[axis];
@@ -750,7 +750,7 @@ int control_config_clear_other()
 		ptr = get_undo_block(total);
 		for (i=j=0; i<NUM_JOY_AXIS_ACTIONS; i++) {
 			if ((Axis_map_to[i] == Axis_map_to[z]) && (i != z)) {
-				memset( &item, 0, sizeof(config_item) );
+				item.clear();
 
 				item.id[CON_JOY] = (short) Axis_map_to[i];
 				item.used = Invert_axis[i];
@@ -918,7 +918,7 @@ int control_config_do_reset()
 
 	for (i=0; i<NUM_JOY_AXIS_ACTIONS; i++) {
 		if ((Axis_map_to[i] != control_config_axis_default(i)) || (Invert_axis[i] != Invert_axis_defaults[i])) {
-			memset( &item, 0, sizeof(config_item) );
+			item.clear();
 
 			item.id[CON_JOY] = (short) Axis_map_to[i];
 			item.used = Invert_axis[i];
@@ -2410,4 +2410,15 @@ void control_config_clear()
 int control_config_handle_conflict()
 {
 	return 0;
+}
+
+void config_item::clear() {
+	default = { -1, -1, -1 };
+	id = { -1, -1, -1 };
+	text = "";
+	tab = -1;
+	type = -1;
+	hasXSTR = false;
+	disabled = false;
+	continuous_ongoing = false;
 }

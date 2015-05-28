@@ -70,6 +70,8 @@ enum CC_type {
 
 /*!
  * Control configuration item type.
+ *
+ * @note Opmization note. Could spit this into 2 classes, one for configuration and one for in-mission use
  */
 class config_item {
 public:
@@ -102,6 +104,8 @@ public:
 		continuous_ongoing(false)
 	{
 	};
+
+	void clear();
 };
 
 /*!
