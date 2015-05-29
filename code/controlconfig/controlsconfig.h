@@ -41,7 +41,6 @@ enum Joy_axis_index {
 	JOY_RZ_AXIS
 };
 
-
 /*!
  * These are used to index a corresponding (analog) action, namely controlling the orientation angles and throttle.
  */
@@ -58,53 +57,12 @@ enum Joy_axis_action_index {
 	NUM_JOY_AXIS_ACTIONS			//!< The total number of actions an axis may map to
 };
 
-
-
 /*!
  * Control Configuration Types. Namely differ in how the control is activated
  */
 enum CC_type {
 	CC_TYPE_TRIGGER			=0,		//!< A normal, one-shot type control that is activated when a key is or button is pressed
 	CC_TYPE_CONTINUOUS				//!< A continous control that is activated as long as the key or button is held down
-};
-
-/*!
- * Control configuration item type.
- *
- * @note Opmization note. Could spit this into 2 classes, one for configuration and one for in-mission use
- * @not Performance note: default and id vectors are "jagged", containing up to the top-most mapped controller.
- *   More joysticks means potentially more memory wasted here...
- */
-class config_item {
-public:
-	std::vector<short> default;     //!< default bound keys/buttons to action
-	std::vector<short> id;          //!< keys/buttons currently bound to action short default[CON_KEYBOARD];
-	
-	char *text;               //!< describes the action in the config screen
-	
-	int  used;                  //!< has control been used yet in mission?  If so, this is the timestamp
-	
-	char tab;                   //!< what tab (category) it belongs in
-	char type;                  //!< manner control should be checked in
-
-	bool hasXSTR;               //!< whether we should translate this with an XSTR
-	bool disabled;              //!< whether this action should be available at all
-	bool continuous_ongoing;    //!< whether this action is a continuous one and is currently ongoing
-
-	config_item();
-
-	void clear();
-};
-
-class config_item_builder
-{
-public:
-	config_item_builder(std::vector<config_item> *Control_config);
-
-	config_item_builder& operator() (const short KEY, const short MOUSE, const short JOY, char* text, char tab, char cc_type, bool hasXSTR);
-
-private:
-	std::vector<config_item> *m_Control_config;
 };
 
 /*!
@@ -311,6 +269,46 @@ enum IoActionId  {
 	CCFG_MAX                                  //!<  The total number of defined control actions (or last define + 1)
 };
 
+/*!
+ * @brief Control configuration item type.
+ *
+ * @note Opmization note. Could spit this into 2 classes, one for configuration and one for in-mission use
+ * @not Performance note: default and id vectors are "jagged", containing up to the top-most mapped controller.
+ *   More joysticks means potentially more memory wasted here...
+ */
+class config_item
+{
+public:
+	std::vector<short> default;     //!< default bound keys/buttons to action
+	std::vector<short> id;          //!< keys/buttons currently bound to action short default[CON_KEYBOARD];
+
+	char *text;               //!< describes the action in the config screen
+
+	int  used;                  //!< has control been used yet in mission?  If so, this is the timestamp
+
+	char tab;                   //!< what tab (category) it belongs in
+	char type;                  //!< manner control should be checked in
+
+	bool hasXSTR;               //!< whether we should translate this with an XSTR
+	bool disabled;              //!< whether this action should be available at all
+	bool continuous_ongoing;    //!< whether this action is a continuous one and is currently ongoing
+
+	config_item();
+
+	void clear();
+};
+
+class config_item_builder
+{
+public:
+	config_item_builder(std::vector<config_item> *Control_config);
+
+	config_item_builder& operator() (const short KEY, const short MOUSE, const short JOY, char* text, char tab, char cc_type, bool hasXSTR);
+
+private:
+	std::vector<config_item> *m_Control_config;
+};
+
 extern int Failed_key_index;
 extern int Invert_heading;
 extern int Invert_pitch;
@@ -325,31 +323,107 @@ extern int Invert_axis_defaults[];
 
 extern int Control_config_overlay_id;
 
-extern std::vector<config_item> Control_config;		//!< Stores the keyboard configuration
-extern SCP_vector<config_item*> Control_config_presets; // tabled control presets; pointers to config_item arrays
-extern SCP_vector<SCP_string> Control_config_preset_names; // names for Control_config_presets (identical order of items)
-extern char **Scan_code_text;
-extern char **Joy_button_text;
+extern std::vector<config_item> Control_config;             //!< Stores the keyboard configuration
+extern SCP_vector<config_item*> Control_config_presets;     //!< tabled control presets; pointers to config_item arrays
+extern SCP_vector<SCP_string> Control_config_preset_names;  //!< names for Control_config_presets (identical order of items)
+extern char **Scan_code_text;	//!< (Localization) Pointer to char[] containing key scancode names
+extern char **Joy_button_text;  //!< (Localization) Pointer to char[] containing mouse/joystick button names
 
-void control_config_common_init();			//!< initialize common control config stuff - call at game startup after localization has been initialized
+/*!
+ * @brief Initialize common control config stuff
+ *
+ * @details Called at game startup after localization has been initialized
+ */
+void control_config_common_init();
 
+/*!
+ * @brief Initialize stuff needed for the control config menu
+ */
 void control_config_init();
+
+/*!
+ * @brief Does a frame on the control config menu
+ */
 void control_config_do_frame(float frametime);
+
+/*!
+ * @brief Called when the control config menu closes
+ */
 void control_config_close();
 
+/*!
+ * @brief Restores the Control_config mappings and exits the menu
+ */
 void control_config_cancel_exit();
 
+/*!
+ * @brief Sets all the controls to the default values in the given preset
+ *
+ * @details If no preset is given, the hardcoded defaults of Control_config are used
+ */
 void control_config_reset_defaults(int presetnum=-1);
+
+/*!
+ * @brief translates the given keycode to a corresponding action
+ *
+ * @param[in] key Pointer to the keycode to translate
+ * @param[in] find_override If true, return the index of the action bound to this key.
+ *                          If false, return the index of the action defaulting to this key
+ */
 int translate_key_to_index(const char *key, bool find_override=true);
+
+/*!
+ * @brief Given the system default key 'key', return the current key that is bound to that function.
+ *
+ * @details Both are 'key' and the return value are descriptive strings that can be displayed directly to the user.
+ *    If 'key' isn't a real key, is not normally bound to anything, or there is no key currently bound to the
+ *  function, NULL is returned.
+ */
 char *translate_key(char *key);
+
+/*!
+ * @brief translates a key code into human-readable format. (Some localization provided)
+ */
 char *textify_scancode(int code);
+
+/*!
+ * @brief Used for CC_TYPE_CONTINOUS actions, checks how long this action has been activated by all controllers
+ */
 float check_control_timef(int id);
+
+/*!
+ * @brief Wrapper for check_control_used. Allows the game to ignore the key if told to do so by the ignore-key SEXP.
+ */
 int check_control(int id, int key = -1);
+
+/*!
+ * @brief Gets heading, pitch, bank, throttle abs. and throttle rel. values.
+ */
 void control_get_axes_readings(int *h, int *p, int *b, int *ta, int *tr);
+
+/*!
+ * Marks a control (indexed by id) as being used/activated, unless explicitly ignored (by a SEXP or script)
+ */
 void control_used(int id);
+
+/*!
+ * Clears all mapped keys and buttons
+ */
 void control_config_clear();
+
+/*!
+ * Unbinds the given key from all controls
+ */
 void clear_key_binding(short key);
+
+/*!
+ * @brief DEBUG: Draws a text string indicating the number of checked controls
+ */
 void control_check_indicate();
+
+/*!
+ * @brief Clears the config_item::used member on all controls
+ */
 void control_config_clear_used_status();
 
 #endif
