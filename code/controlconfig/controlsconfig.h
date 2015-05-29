@@ -310,12 +310,6 @@ private:
 };
 
 extern int Failed_key_index;
-extern int Invert_heading;
-extern int Invert_pitch;
-extern int Invert_roll;
-extern int Invert_thrust;
-extern int Disable_axis2;
-extern int Disable_axis3;
 
 extern int Axis_map_to[];
 extern int Invert_axis[];
