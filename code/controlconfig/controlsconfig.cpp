@@ -2412,9 +2412,21 @@ int control_config_handle_conflict()
 	return 0;
 }
 
-void config_item::clear() {
-	default = { -1, -1, -1 };
-	id = { -1, -1, -1 };
+config_item::config_item()
+	: text(""), tab(-1), type(-1), hasXSTR(false), disabled(false),
+	continuous_ongoing(false)
+{
+	int num_sticks = joy_get_num_sticks();	// TODO: Optimize me, Captain!
+
+	// Reserve both default and id vectors.
+	default.reserve(2 + num_sticks);
+	id.reserve(2 + num_sticks);
+};
+
+void config_item::clear()
+{
+	default.clear();
+	id.clear();
 	text = "";
 	tab = -1;
 	type = -1;
@@ -2422,3 +2434,29 @@ void config_item::clear() {
 	disabled = false;
 	continuous_ongoing = false;
 }
+
+config_item_builder::config_item_builder(std::vector<config_item> *Control_config)
+{
+	Assert(Control_config != nullptr);
+
+	m_Control_config = Control_config;
+
+	m_Control_config->clear();		// TODO: Might not be needed
+	m_Control_config->reserve(CCFG_MAX);
+}
+
+config_item_builder& config_item_builder::operator() (const short KEY, const short MOUSE, const short JOY, char* text, char tab, char cc_type, bool hasXSTR)
+{
+	config_item new_item;
+
+	new_item.default.push_back(KEY);
+	new_item.default.push_back(MOUSE);
+	new_item.default.push_back(JOY);
+
+	new_item.text = text;
+	new_item.tab = tab;
+	new_item.type = cc_type;
+	new_item.hasXSTR = hasXSTR;
+
+	m_Control_config->push_back(new_item);
+};

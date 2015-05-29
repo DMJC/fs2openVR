@@ -72,6 +72,8 @@ enum CC_type {
  * Control configuration item type.
  *
  * @note Opmization note. Could spit this into 2 classes, one for configuration and one for in-mission use
+ * @not Performance note: default and id vectors are "jagged", containing up to the top-most mapped controller.
+ *   More joysticks means potentially more memory wasted here...
  */
 class config_item {
 public:
@@ -89,23 +91,20 @@ public:
 	bool disabled;              //!< whether this action should be available at all
 	bool continuous_ongoing;    //!< whether this action is a continuous one and is currently ongoing
 
-	config_item(std::initializer_list<short> default_in, std::initializer_list<short> id_in,
-		char* text_in,
-		int used_in,
-		char tab_in, char type_in,
-		bool hasXSTR_in, bool disabled_in, bool continuous_ongoing_in)
-		: default(default_in), id(id_in), text(text_in), used(used_in), tab(tab_in), type(type_in), hasXSTR(hasXSTR_in),
-		disabled(disabled_in), continuous_ongoing(continuous_ongoing_in)
-	{
-	};
-
-	config_item()
-		: default({ -1, -1, -1 }), id({ -1, -1, -1 }), text(""), tab(-1), type(-1), hasXSTR(false), disabled(false),
-		continuous_ongoing(false)
-	{
-	};
+	config_item();
 
 	void clear();
+};
+
+class config_item_builder
+{
+public:
+	config_item_builder(std::vector<config_item> *Control_config);
+
+	config_item_builder& operator() (const short KEY, const short MOUSE, const short JOY, char* text, char tab, char cc_type, bool hasXSTR);
+
+private:
+	std::vector<config_item> *m_Control_config;
 };
 
 /*!
@@ -326,7 +325,7 @@ extern int Invert_axis_defaults[];
 
 extern int Control_config_overlay_id;
 
-extern config_item Control_config[];		//!< Stores the keyboard configuration
+extern std::vector<config_item> Control_config;		//!< Stores the keyboard configuration
 extern SCP_vector<config_item*> Control_config_presets; // tabled control presets; pointers to config_item arrays
 extern SCP_vector<SCP_string> Control_config_preset_names; // names for Control_config_presets (identical order of items)
 extern char **Scan_code_text;
