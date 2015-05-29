@@ -1988,6 +1988,12 @@ void game_init()
 
 	hud_init_comm_orders();	// Goober5000
 
+	// standalone's don't use the joystick and it seems to sometimes cause them to not get shutdown properly
+	// joy must be init before controls vector is init, since we need to know the number of joysticks available
+	if (!Is_standalone) {
+		joy_init();
+	}
+
 	control_config_common_init();				// sets up localization stuff in the control config
 
 	parse_rank_tbl();
@@ -2005,11 +2011,6 @@ void game_init()
 	// start up the mission logfile
 	logfile_init(LOGFILE_EVENT_LOG);
 	log_string(LOGFILE_EVENT_LOG,"FS2_Open Mission Log - Opened \n\n", 1);
-
-	// standalone's don't use the joystick and it seems to sometimes cause them to not get shutdown properly
-	if(!Is_standalone){
-		joy_init();
-	}
 
 	player_controls_init();
 	model_init();	
