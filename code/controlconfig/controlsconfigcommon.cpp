@@ -43,7 +43,7 @@ int Invert_axis_defaults[JOY_NUM_AXES] = { 0, 0, 0, 0, 0, 0 };
 //! arrays which hold the key mappings.  The array index represents a key-independent action.
 //! please use SPACES for aligning the fields of this array
 //XSTR:OFF
-std::vector<config_item> Control_config;
+SCP_vector<config_item> Control_config;
 
 static const size_t dummy = sizeof(Control_config);
 

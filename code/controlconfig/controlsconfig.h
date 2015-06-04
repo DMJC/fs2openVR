@@ -279,8 +279,8 @@ enum IoActionId  {
 class config_item
 {
 public:
-	std::vector<short> default;     //!< default bound keys/buttons to action
-	std::vector<short> id;          //!< keys/buttons currently bound to action short default[CON_KEYBOARD];
+	SCP_vector<short> default;     //!< default bound keys/buttons to action
+	SCP_vector<short> id;          //!< keys/buttons currently bound to action short default[CON_KEYBOARD];
 
 	char *text;               //!< describes the action in the config screen
 
@@ -301,12 +301,12 @@ public:
 class config_item_builder
 {
 public:
-	config_item_builder(std::vector<config_item> *Control_config);
+	config_item_builder(SCP_vector<config_item> *Control_config);
 
 	config_item_builder& operator() (const short KEY, const short MOUSE, const short JOY, char* text, char tab, char cc_type, bool hasXSTR);
 
 private:
-	std::vector<config_item> *m_Control_config;
+	SCP_vector<config_item> *m_Control_config;
 };
 
 extern int Failed_key_index;
@@ -317,7 +317,7 @@ extern int Invert_axis_defaults[];
 
 extern int Control_config_overlay_id;
 
-extern std::vector<config_item> Control_config;             //!< Stores the keyboard configuration
+extern SCP_vector<config_item> Control_config;             //!< Stores the keyboard configuration
 extern SCP_vector<config_item*> Control_config_presets;     //!< tabled control presets; pointers to config_item arrays
 extern SCP_vector<SCP_string> Control_config_preset_names;  //!< names for Control_config_presets (identical order of items)
 extern char **Scan_code_text;	//!< (Localization) Pointer to char[] containing key scancode names
