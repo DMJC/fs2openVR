@@ -309,6 +309,8 @@ private:
 	SCP_vector<config_item> *m_Control_config;
 };
 
+typedef SCP_vector<config_item> Ccfg_vector;
+
 extern int Failed_key_index;
 
 extern int Axis_map_to[];
@@ -317,8 +319,8 @@ extern int Invert_axis_defaults[];
 
 extern int Control_config_overlay_id;
 
-extern SCP_vector<config_item> Control_config;             //!< Stores the keyboard configuration
-extern SCP_vector<config_item*> Control_config_presets;     //!< tabled control presets; pointers to config_item arrays
+extern Ccfg_vector Control_config;             //!< Stores the keyboard configuration
+extern SCP_list<Ccfg_vector> Control_config_presets;     //!< tabled control presets; pointers to config_item arrays
 extern SCP_vector<SCP_string> Control_config_preset_names;  //!< names for Control_config_presets (identical order of items)
 extern char **Scan_code_text;	//!< (Localization) Pointer to char[] containing key scancode names
 extern char **Joy_button_text;  //!< (Localization) Pointer to char[] containing mouse/joystick button names

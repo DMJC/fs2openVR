@@ -867,6 +867,12 @@ int control_config_axis_default(int axis)
 	return Axis_map_to_defaults[axis];
 }
 
+/**
+ * @brief Resets all controls bindings to their defaults.
+ *
+ * @details If there are multiple defaults (via multiple [#ControlConfigOverride] sections in the
+ *   controlsconfigdefaults.tbl), this will cycle through them.
+ */
 int control_config_do_reset()
 {
 	int i, j, total = 0;
@@ -942,8 +948,6 @@ int control_config_do_reset()
 	return 0;
 }
 
-// This sets all the controls to the default values in the given preset
-// If no preset is given, the hardcoded defaults of Control_config are used
 void control_config_reset_defaults(int presetnum)
 {
 	int i;
@@ -2283,9 +2287,6 @@ int check_control_used(int id, int key)
 	return 0;
 }
 
-/**
-* Wrapper for check_control_used. Allows the game to ignore the key if told to do so by the ignore-key SEXP.
-*/
 int check_control(int id, int key) 
 {
 	if (check_control_used(id, key)) {
@@ -2312,7 +2313,7 @@ int check_control(int id, int key)
 	return 0;
 }
 
-// get heading, pitch, bank, throttle abs. and throttle rel. values.
+
 void control_get_axes_readings(int *h, int *p, int *b, int *ta, int *tr)
 {
 	int axes_values[JOY_NUM_AXES];
@@ -2435,7 +2436,7 @@ void config_item::clear()
 	continuous_ongoing = false;
 }
 
-config_item_builder::config_item_builder(std::vector<config_item> *Control_config)
+config_item_builder::config_item_builder(SCP_vector<config_item> *Control_config)
 {
 	Assert(Control_config != nullptr);
 

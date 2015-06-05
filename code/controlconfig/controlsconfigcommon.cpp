@@ -255,7 +255,7 @@ char *Joy_button_text_english[] = {
 char **Scan_code_text = Scan_code_text_english;
 char **Joy_button_text = Joy_button_text_english;
 
-SCP_vector<config_item*> Control_config_presets;
+SCP_list<Ccfg_vector> Control_config_presets;
 SCP_vector<SCP_string> Control_config_preset_names;
 
 void set_modifier_status()
@@ -283,9 +283,6 @@ void set_modifier_status()
 	}
 }
 
-// If find_override is set to true, then this returns the index of the action
-// which has been bound to the given key. Otherwise, the index of the action
-// which has the given key as its default key will be returned.
 int translate_key_to_index(const char *key, bool find_override)
 {
 	int i, index = -1, alt = 0, shift = 0, max_scan_codes;
@@ -350,11 +347,6 @@ int translate_key_to_index(const char *key, bool find_override)
 	return -1;
 }
 
-/*! Given the system default key 'key', return the current key that is bound to that function.
-* Both are 'key' and the return value are descriptive strings that can be displayed
-* directly to the user.  If 'key' isn't a real key, is not normally bound to anything,
-* or there is no key currently bound to the function, NULL is returned.
-*/
 char *translate_key(char *key)
 {
 	int index = -1, key_code = -1, joy_code = -1;
@@ -791,6 +783,83 @@ void LoadEnumsIntoMaps() {
 }
 
 /**
+ * @breif Parses a CCFG override bind group
+ */
+void control_config_common_parse_bind(Ccfg_vector &cfg_preset) {
+	SCP_string szTempBuffer;
+	SCP_vector<config_item>::iterator p_ccConfig;
+
+	required_string("$Bind Name:");
+	stuff_string(szTempBuffer, F_NAME);
+
+	// Search for item with text
+	for (p_ccConfig = cfg_preset.begin(); p_ccConfig != cfg_preset.end(); ++p_ccConfig) {
+		if (p_ccConfig->text == szTempBuffer) {
+			break;
+		}
+	};
+
+	if (p_ccConfig != cfg_preset.end()) {
+		// Found our item
+		int iTemp;
+
+		if (optional_string("$Key Default:")) {
+			if (optional_string("NONE")) {
+				p_ccConfig->default[CON_KEYBOARD] = (short)-1;
+			} else {
+				stuff_string(szTempBuffer, F_NAME);
+				p_ccConfig->default[CON_KEYBOARD] = (short)mKeyNameToVal[szTempBuffer];
+			}
+		}
+
+		if (optional_string("$Joy Default:")) {
+			stuff_int(&iTemp);
+			p_ccConfig->default[CON_JOY] = (short)iTemp;
+		}
+
+		if (optional_string("$Key Mod Shift:")) {
+			stuff_int(&iTemp);
+			p_ccConfig->default[CON_KEYBOARD] |= (iTemp == 1) ? KEY_SHIFTED : 0;
+		}
+
+		if (optional_string("$Key Mod Alt:")) {
+			stuff_int(&iTemp);
+			p_ccConfig->default[CON_KEYBOARD] |= (iTemp == 1) ? KEY_ALTED : 0;
+		}
+
+		if (optional_string("$Key Mod Ctrl:")) {
+			stuff_int(&iTemp);
+			p_ccConfig->default[CON_KEYBOARD] |= (iTemp == 1) ? KEY_CTRLED : 0;
+		}
+
+		if (optional_string("$Category:")) {
+			stuff_string(szTempBuffer, F_NAME);
+			p_ccConfig->tab = (char)mCCTabNameToVal[szTempBuffer];
+		}
+
+		if (optional_string("$Has XStr:")) {
+			stuff_int(&iTemp);
+			p_ccConfig->hasXSTR = (iTemp == 1);
+		}
+
+		if (optional_string("$Type:")) {
+			stuff_string(szTempBuffer, F_NAME);
+			p_ccConfig->type = (char)mCCTypeNameToVal[szTempBuffer];
+		}
+
+		if (optional_string("+Disable")) {
+			p_ccConfig->disabled = true;
+		};
+
+	} else {
+		// Couldn't find item
+		error_display(1, "Bind Name not found: %s\n", szTempBuffer);
+		advance_to_eoln(NULL);
+		ignore_white_space();
+	}
+}
+
+/**
  * @brief Parses controlconfigdefault.tbl, and overrides the default control configuration for each valid entry in the .tbl
  */
 void control_config_common_load_overrides()
@@ -806,11 +875,8 @@ void control_config_common_load_overrides()
 	reset_parse();
 
 	// start parsing
-	// TODO: Split this out into more helps. Too many tabs!
 	while(optional_string("#ControlConfigOverride")) {
-		config_item *cfg_preset = new config_item[CCFG_MAX + 1];
-		std::copy(Control_config, Control_config + CCFG_MAX + 1, cfg_preset);
-		Control_config_presets.push_back(cfg_preset);
+		Ccfg_vector cfg_preset(Control_config);
 
 		SCP_string preset_name;
 		if (optional_string("$Name:")) {
@@ -818,94 +884,23 @@ void control_config_common_load_overrides()
 		} else {
 			preset_name = "<unnamed preset>";
 		}
-		Control_config_preset_names.push_back(preset_name);
 
+		// Parse all bindings
 		while (required_string_either("#End","$Bind Name:")) {
-			const int iBufferLength = 64;
-			char szTempBuffer[iBufferLength];
-
-			required_string("$Bind Name:");
-			stuff_string(szTempBuffer, F_NAME, iBufferLength);
-
-			const size_t cCntrlAryLength = sizeof(Control_config) / sizeof(Control_config[0]);
-			for (size_t i = 0; i < cCntrlAryLength; ++i) {
-				config_item& r_ccConfig = cfg_preset[i];
-
-				if (!strcmp(szTempBuffer, r_ccConfig.text)) {
-					/**
-					* short default[CON_KEYBOARD];
-					* short default[CON_JOY];
-					* char tab;
-					* bool hasXSTR;
-					* char type;
-					*/
-
-					int iTemp;
-
-					if (optional_string("$Key Default:")) {
-						if (optional_string("NONE")) {
-							r_ccConfig.default[CON_KEYBOARD] = (short)-1;
-						} else {
-							stuff_string(szTempBuffer, F_NAME, iBufferLength);
-							r_ccConfig.default[CON_KEYBOARD] = (short)mKeyNameToVal[szTempBuffer];
-						}
-					}
-
-					if (optional_string("$Joy Default:")) {
-						stuff_int(&iTemp);
-						r_ccConfig.default[CON_JOY] = (short)iTemp;
-					}
-
-					if (optional_string("$Key Mod Shift:")) {
-						stuff_int(&iTemp);
-						r_ccConfig.default[CON_KEYBOARD] |= (iTemp == 1) ? KEY_SHIFTED : 0;
-					}
-
-					if (optional_string("$Key Mod Alt:")) {
-						stuff_int(&iTemp);
-						r_ccConfig.default[CON_KEYBOARD] |= (iTemp == 1) ? KEY_ALTED : 0;
-					}
-
-					if (optional_string("$Key Mod Ctrl:")) {
-						stuff_int(&iTemp);
-						r_ccConfig.default[CON_KEYBOARD] |= (iTemp == 1) ? KEY_CTRLED : 0;
-					}
-
-					if (optional_string("$Category:")) {
-						stuff_string(szTempBuffer, F_NAME, iBufferLength);
-						r_ccConfig.tab = (char)mCCTabNameToVal[szTempBuffer];
-					}
-
-					if (optional_string("$Has XStr:")) {
-						stuff_int(&iTemp);
-						r_ccConfig.hasXSTR = (iTemp == 1);
-					}
-
-					if (optional_string("$Type:")) {
-						stuff_string(szTempBuffer, F_NAME, iBufferLength);
-						r_ccConfig.type = (char)mCCTypeNameToVal[szTempBuffer];
-					}
-
-					if (optional_string("+Disable")) {
-						r_ccConfig.disabled = true;
-					}
-					
-					// Nerf the buffer now.
-					szTempBuffer[0] = '\0';
-				} else if ((i + 1) == cCntrlAryLength) {
-					error_display(1, "Bind Name not found: %s\n", szTempBuffer);
-					advance_to_eoln(NULL);
-					ignore_white_space();
-					return;
-				}
-			}
+			control_config_common_parse_bind(cfg_preset);
 		}
+
+		// Push back our presets
+		Control_config_preset_names.push_back(preset_name);
+		Control_config_presets.push_back(cfg_preset);
 
 		required_string("#End");
 	}
 	
 	// Overwrite the control config with the first preset that was found
-	if (Control_config_presets.size() > 0) {
-		std::copy(Control_config_presets[0], Control_config_presets[0] + CCFG_MAX + 1, Control_config);
+	if (!Control_config_presets.empty()) {
+		auto first_preset = Control_config_presets.begin();
+
+		Control_config.assign(first_preset->begin(), first_preset->end());
 	}
 }
