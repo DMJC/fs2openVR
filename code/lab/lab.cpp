@@ -79,6 +79,7 @@ static int Lab_model_num = -1;
 static int Lab_weaponmodel_num[MAX_SHIP_WEAPONS];
 static int Lab_model_LOD = 0;
 static int Lab_model_flags = MR_AUTOCENTER | MR_NO_FOGGING;
+static int Lab_ui_flags = 0;
 static int Lab_model_debug_flags = 0;
 static char Lab_model_filename[MAX_FILENAME_LEN];
 static char Lab_weaponmodel_filename[MAX_SHIP_WEAPONS][MAX_FILENAME_LEN];
@@ -832,8 +833,11 @@ void labviewer_render_model(float frametime)
 	light_dir.xyz.y = 1.0f;
 	light_dir.xyz.x = 0.0000001f;
 	light_add_directional(&light_dir, 0.65f, 1.0f, 1.0f, 1.0f,-1);
-	int mx, my;
-	mouse_get_pos( &mx, &my );
+	int mx = 0;
+	int my = 0;
+	if (Lab_ui_flags & MR_UI_MOUSELIGHT) {
+		mouse_get_pos(&mx, &my);
+	}
 	light_dir.xyz.y = 0.0000001f;
 	light_dir.xyz.x = sin(my/150.0f);
 	light_dir.xyz.z = cos(my/150.0f);
@@ -1959,6 +1963,7 @@ void labviewer_make_render_options_window(Button *caller)
 	// model flags
 	ADD_RENDER_FLAG("Wireframe", Lab_model_flags, ((Cmdline_nohtl) ? MR_SHOW_OUTLINE | MR_NO_POLYS | MR_NO_TEXTURING : MR_SHOW_OUTLINE_HTL | MR_NO_POLYS | MR_NO_TEXTURING) );
 	ADD_RENDER_FLAG("Transparent", Lab_model_flags, MR_ALL_XPARENT);
+	ADD_RENDER_FLAG("Mouselight", Lab_ui_flags, MR_UI_MOUSELIGHT);
 	ADD_RENDER_FLAG("No Lighting", Lab_model_flags, MR_NO_LIGHTING);
 	ADD_RENDER_FLAG("No Z-Buffer", Lab_model_flags, MR_NO_ZBUFFER);
 	ADD_RENDER_FLAG("No Culling", Lab_model_flags, MR_NO_CULL);

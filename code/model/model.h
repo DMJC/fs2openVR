@@ -926,6 +926,8 @@ void model_set_detail_level(int n);
 #define MR_DEBUG_SHIELDS			(1<<3)		// Show the shield mesh
 #define MR_DEBUG_BAY_PATHS			(1<<4)		// draw bay paths
 
+#define MR_UI_MOUSELIGHT			(1<<0)		// If enable, mouse controls position of the spotlight on the model
+
 //Defines for the render parameter of model_render, model_really_render and model_render_buffers
 #define MODEL_RENDER_OPAQUE 1
 #define MODEL_RENDER_TRANS 2
