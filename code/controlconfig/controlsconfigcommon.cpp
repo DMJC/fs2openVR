@@ -255,7 +255,7 @@ char *Joy_button_text_english[] = {
 char **Scan_code_text = Scan_code_text_english;
 char **Joy_button_text = Joy_button_text_english;
 
-SCP_list<Ccfg_vector> Control_config_presets;
+SCP_vector<Ccfg_vector> Control_config_presets;
 SCP_vector<SCP_string> Control_config_preset_names;
 
 void set_modifier_status()

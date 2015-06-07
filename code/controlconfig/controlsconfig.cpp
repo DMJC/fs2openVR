@@ -878,7 +878,7 @@ int control_config_do_reset()
 	int i, j, total = 0;
 	config_item_undo *ptr;
 	config_item item;
-	config_item *preset;
+	Ccfg_vector *preset;
 	bool cycling_presets = false;
 	
 	// If there are presets, then we'll cycle to the next preset and reset to that
@@ -888,15 +888,15 @@ int control_config_do_reset()
 		if (++Defaults_cycle_pos >= Control_config_presets.size())
 			Defaults_cycle_pos = 0;
 		
-		preset = Control_config_presets[Defaults_cycle_pos];
+		preset = &Control_config_presets[Defaults_cycle_pos];
 	} else {
 		// If there are no presets, then we'll always reset to the hardcoded defaults
-		preset = Control_config;
+		preset = &Control_config;
 	}
 	
 	// first, determine how many bindings need to be changed
 	for (i=0; i<CCFG_MAX; i++) {
-		if ((Control_config[i].id[CON_KEYBOARD] != preset[i].default[CON_KEYBOARD]) || (Control_config[i].id[CON_JOY] != preset[i].default[CON_JOY])) {
+		if ((Control_config[i].id[CON_KEYBOARD] != (*preset)[i].default[CON_KEYBOARD]) || (Control_config[i].id[CON_JOY] != (*preset)[i].default[CON_JOY])) {
 			total++;
 		}
 	}
@@ -915,7 +915,7 @@ int control_config_do_reset()
 	// now, back up the old bindings so we can undo if we want to
 	ptr = get_undo_block(total);
 	for (i=j=0; i<CCFG_MAX; i++) {
-		if ((Control_config[i].id[CON_KEYBOARD] != preset[i].default[CON_KEYBOARD]) || (Control_config[i].id[CON_JOY] != preset[i].default[CON_JOY])) {
+		if ((Control_config[i].id[CON_KEYBOARD] != (*preset)[i].default[CON_KEYBOARD]) || (Control_config[i].id[CON_JOY] != (*preset)[i].default[CON_JOY])) {
 			ptr->index[j] = i;
 			ptr->list[j] = Control_config[i];
 			j++;
@@ -951,24 +951,27 @@ int control_config_do_reset()
 void control_config_reset_defaults(int presetnum)
 {
 	int i;
-	config_item *preset;
+	Ccfg_vector *preset;
 
-	if (presetnum >= 0)
-		preset = Control_config_presets[presetnum];
-	else
-		preset = Control_config;
+	if (presetnum >= 0) {
+		// Reference to preset
+		preset = &Control_config_presets[presetnum];
+	} else {
+		// Reference to Control_config, using the harcoded defaults
+		preset = &Control_config;
+	}
 
 	// Reset keyboard defaults
 	for (i=0; i<CCFG_MAX; i++) {
 		// Note that default[CON_KEYBOARD] and default[CON_JOY] are NOT overwritten here;
 		// they should retain the values of the first preset because
 		// for example the key-pressed SEXP works off the defaults of the first preset
-		Control_config[i].id[CON_KEYBOARD] = preset[i].default[CON_KEYBOARD];
-		Control_config[i].id[CON_JOY] = preset[i].default[CON_JOY];
-		Control_config[i].tab = preset[i].tab;
-		Control_config[i].hasXSTR = preset[i].hasXSTR;
-		Control_config[i].type = preset[i].type;
-		Control_config[i].disabled = preset[i].disabled;
+		Control_config[i].id[CON_KEYBOARD] = (*preset)[i].default[CON_KEYBOARD];
+		Control_config[i].id[CON_JOY] = (*preset)[i].default[CON_JOY];
+		Control_config[i].tab = (*preset)[i].tab;
+		Control_config[i].hasXSTR = (*preset)[i].hasXSTR;
+		Control_config[i].type = (*preset)[i].type;
+		Control_config[i].disabled = (*preset)[i].disabled;
 	}
 
 	for (i=0; i<NUM_JOY_AXIS_ACTIONS; i++) {
@@ -2112,28 +2115,29 @@ void control_config_do_frame(float frametime)
 	}
 
 	// If multiple controls presets are provided, display which one is in use
-	if (Control_config_presets.size() > 1) {
+	if (!Control_config_presets.empty()) {
 		SCP_string preset_str;
-		int matching_preset = -1;
+		int matching_preset = 0;
+		bool this_preset_matches = false;
 
-		for (i=0; i<(int)Control_config_presets.size(); i++) {
-			bool this_preset_matches = true;
-			config_item *this_preset = Control_config_presets[i];
+		for (auto it = Control_config_presets.begin(); it != Control_config_presets.end(); it++) {
+			this_preset_matches = true;
 
-			for (int j=0; j<CCFG_MAX; j++) {
-				if (!Control_config[j].disabled && Control_config[j].id[CON_KEYBOARD] != this_preset[j].id[CON_KEYBOARD]) {
+			for (int j = 0; j < Control_config.size(); j++) {
+				if (!Control_config[j].disabled && (Control_config[j].id[CON_KEYBOARD] != (*it)[j].id[CON_KEYBOARD])) {
 					this_preset_matches = false;
 					break;
 				}
 			}
 
 			if (this_preset_matches) {
-				matching_preset = i;
 				break;
 			}
+
+			matching_preset++;
 		}
 
-		if (matching_preset >= 0) {
+		if (this_preset_matches) {
 			sprintf(preset_str, "Controls: %s", Control_config_preset_names[matching_preset].c_str());
 		} else {
 			sprintf(preset_str, "Controls: custom");
@@ -2460,4 +2464,6 @@ config_item_builder& config_item_builder::operator() (const short KEY, const sho
 	new_item.hasXSTR = hasXSTR;
 
 	m_Control_config->push_back(new_item);
+
+	return *this;
 };
