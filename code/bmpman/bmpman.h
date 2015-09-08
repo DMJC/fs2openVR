@@ -67,7 +67,9 @@
 #define BMP_FLAG_RENDER_TARGET_DYNAMIC      (1<<1)      //!< Texture is a dynamic type (animation)
 #define BMP_FLAG_CUBEMAP                    (1<<2)      //!< Texture is a cubemap
 
-// Bitmap types
+/**
+ * @brief Bitmap types
+ */
 enum BM_TYPE
 {
 	BM_TYPE_NONE = 0,   //!< No type
@@ -92,6 +94,16 @@ enum BM_TYPE
 	BM_TYPE_CUBEMAP_DXT1,   //!< 24-bit cubemap        (compressed cubemap surface)
 	BM_TYPE_CUBEMAP_DXT3,   //!< 32-bit cubemap        (compressed cubemap surface)
 	BM_TYPE_CUBEMAP_DXT5    //!< 32-bit cubemap        (compressed cubemap surface)
+};
+
+/**
+ * @brief Bmpman Memory Mode type
+ */
+enum BM_MEM_MODE
+{
+	BM_MEM_HIGH = 0,    //!< High memory mode. Every frame is loaded
+	BM_MEM_LOW,         //!< Low memory mode, drop every other frame
+	BM_MEM_DEBUG        //!< Debug memory mode, drop every frame except the first
 };
 
 /**
@@ -277,14 +289,12 @@ int bm_unload_fast(int handle, int clear_render_targets = 0);
  * @param handle               The index number of the bitmap to release
  * @param clear_render_targets If nonzero, also release render targets
  *
- * @returns 1 on success,
- * @returns 0 otherwise
+ * @returns true on success,
+ * @returns false otherwise
  *
  * @note If the passed handle is that of an ANI, it frees EVERY frame. Be sure to only pass the handle of the first frame!
- *
- * @todo upgrade return type and clear_render_targets type to bools
  */
-int bm_release(int handle, int clear_render_targets = 0);
+bool bm_release(int handle, bool clear_render_targets = false);
 
 /**
  * @brief Loads a bitmap sequance so we can draw with it.
@@ -294,7 +304,7 @@ int bm_release(int handle, int clear_render_targets = 0);
  * @param[out] fps              If non-null, set to the fps of this animation
  * @param[out] keyframe         if non null, set to the keyframe index of this animation
  * @param[in] can_drop_frames   If set, allows dropped frames
- * @param[in] dir_type          Directory type
+ * @param[in] dir_type          CF_TYPE directory type to load from
  *
  * @returns The bm number of the first bitmap in the sequence if successful, or
  * @returns A negative value if unsuccessful
@@ -304,12 +314,12 @@ int bm_load_animation(const char *filename, int *nframes = NULL, int *fps = NULL
 /**
  * @brief Loads either animation (bm_load_animation) or still image (bm_load)
  *
- * @param[in] filename
- * @param[out] nframes  If non-null and loading was successful, set to the number of frames the animation has
- * @param[out] fps      If non-null and loading was successful, set to the fps of this animation
- * @param[out] keyframe if non null and loading was successful, set to the keyframe index of this animation
- * @param[in] can_drop_frames
- * @param[in] dir_type
+ * @param[in]  filename
+ * @param[out] nframes          If non-null and loading was successful, set to the number of frames the animation has
+ * @param[out] fps              If non-null and loading was successful, set to the fps of this animation
+ * @param[out] keyframe         if non null and loading was successful, set to the keyframe index of this animation
+ * @param[in]  can_drop_frames  If set, allows dropped frames
+ * @param[in]  dir_type         CF_TYPE directory type to load from
  *
  * @returns The bm number of the first bitmap in the sequence if successful, or
  * @returns A negative value if unsuccessful
@@ -325,7 +335,7 @@ int bm_load_either(const char *filename, int *nframes = NULL, int *fps = NULL, i
  * @param handle    The number indexing the desired bitmap
  * @param bpp       The desired bpp of the bitmep
  * @param flags     The desired bitmap format
- * @param nodebug
+ * @param nodebug   If true, don't print debug messages to an outwnd
 
  * @returns A pointer to the bitmap that's valid until bm_unlock is called if successful, or
  * @returns NULL if unsuccessful
@@ -359,13 +369,10 @@ void bm_unlock(int handle);
  * an initial routine pass, followed by a more thorough check routine to ensure the
  * series of bitmaps within the bm_bitmaps[] structure have not become invalid.
  *
- * @returns Nonzero if valid, else
- * @returns Zero otherwise
- *
- * @todo z64 - Returned value is essentially a bool type, need to check all caller functions to see if it can safely
- *   be updated to reflect this
+ * @returns true  if valid
+ * @returns false otherwise
  */
-int bm_is_valid(int handle);
+bool bm_is_valid(int handle);
 
 /**
  * @brief Gets info on the bitmap indexed by handle.
@@ -425,9 +432,9 @@ void bm_unload_all();
  * @param[out] pal Is set to reference the bitmap's palette
  * @param[out] name (optional) Is set to the bitmap's filename
  *
- * @todo Maybe get rid of the optional filename and have the callers call bm_get_filename. Less efficient, however.
+ * @todo Maybe get rid of the optional filename and have each callers call bm_get_filename. Less efficient, however.
  */
-void bm_get_palette(int handle, ubyte *pal, char *name);
+void bm_get_palette(int handle, ubyte *pal, char *name = NULL);
 
 /**
  * @brief Hack to get a pixel from a bitmap
@@ -458,7 +465,7 @@ void bm_get_frame_usage(int *ntotal, int *nnew);
  * @returns The bitmap handle on success, or
  * @returns A negative value on failure
  *
- * @note This should only be used if you are certain the new picture is the same type, has same dimensions, etc.
+ * @attention This should only be used if you are certain the new picture is the same type, has same dimensions, etc.
  */
 int bm_reload(int bitmap_handle, const char* filename);
 
@@ -472,8 +479,11 @@ void bm_page_in_start();
  */
 void bm_page_in_stop();
 
-// Paging code in a library should call these functions
-// in its page in function.
+/**
+ * @defgroup BMPMAN_PAGING Paging code in a library should call these functions from their page-in function
+ *
+ * @{
+ */
 
 /**
  * @brief Marks a texture as being used for this level
@@ -499,22 +509,23 @@ void bm_page_in_aabitmap(int bitmapnum, int num_frames = 1);
 /**
  * @brief Unloads the bitmap indexed by handle that was previously paged-in
  *
- * @returns 0 If the bitmap had already been released, or
- * @returns 0 If the handle is invalid, or
- * @returns 1 If successful
+ * @returns false If the bitmap had already been released, or
+ * @returns false If the handle is invalid, or
+ * @returns true  If successful
  */
 bool bm_page_out(int handle);
 
 /**
+ * @}
+ */
+
+/**
  * @brief Sets BMPMAN's memory mode
  *
- * @details 0 = High memory;
- *          1 = Low memory (loads every other frame of ani's);
- *          2 = Debug low memory (only use first frame of each ani)
- *
- * @todo This should use an enum, or instead allow an arbitrary number to drop frames (like 1/2, 1/3, etc.)
+ * @todo Maybe allow an arbitrary number to drop frames. For example, have 0 to load every frame, 1 to load just the
+ *   first frame, and 2 thru N to load only every Nth frame
  */
-void bm_set_low_mem(int mode);
+void bm_set_low_mem(BM_MEM_MODE mode);
 
 /**
  * @brief Sets bm_set_components and bm_get_components to reference screen format functions
@@ -599,7 +610,7 @@ void bm_set_components_argb_32_tex(ubyte *pixel, ubyte *r, ubyte *g, ubyte *b, u
 void bm_get_components(ubyte *pixel, ubyte *r, ubyte *g, ubyte *b, ubyte *a);
 
 /**
- * @brief Returns the compression type of the bitmap indexed by handle
+ * @brief Returns the DDS compression type of the bitmap indexed by handle
  */
 int bm_is_compressed(int handle);
 

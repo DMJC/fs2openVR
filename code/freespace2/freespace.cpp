@@ -1965,10 +1965,10 @@ void game_init()
 #endif
 		Use_low_mem )	{
 		mprintf(( "Using normal memory settings...\n" ));
-		bm_set_low_mem(1);		// Use every other frame of bitmaps
+		bm_set_low_mem(BM_MEM_LOW);		// Use every other frame of bitmaps
 	} else {
 		mprintf(( "Using high memory settings...\n" ));
-		bm_set_low_mem(0);		// Use all frames of bitmaps
+		bm_set_low_mem(BM_MEM_HIGH);		// Use all frames of bitmaps
 	}
 
 	//WMC - Initialize my new GUI system

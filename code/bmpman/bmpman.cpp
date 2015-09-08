@@ -88,7 +88,7 @@ bitmap_entry bm_bitmaps[MAX_BITMAPS];
 static int bm_inited = 0;
 static uint Bm_next_signature = 0x1234;
 static int  bm_next_handle = 1;
-static int Bm_low_mem = 0;
+static BM_MEM_MODE Bm_low_mem = BM_MEM_HIGH;
 
 /**
  * How much RAM bmpman can use for textures.
@@ -904,11 +904,11 @@ int bm_is_render_target(int bitmap_id) {
 	return bm_bitmaps[n].type;
 }
 
-int bm_is_valid(int handle) {
+bool bm_is_valid(int handle) {
 	// Ensure that certain known false or out of range handles are quickly returned as invalid,
 	// prior to utilising the handle in a way which leads to memory access outside bm_bitmaps[]
-	if (!bm_inited) return 0;
-	if (handle < 0) return 0;
+	if (!bm_inited) return false;
+	if (handle < 0) return false;
 
 	return (bm_bitmaps[handle % MAX_BITMAPS].handle == handle);
 }
@@ -1247,12 +1247,21 @@ int bm_load_animation(const char *real_filename, int *nframes, int *fps, int *ke
 	}
 
 	if ((can_drop_frames) && (type != BM_TYPE_EFF)) {
-		if (Bm_low_mem == 1) {
+		switch (Bm_low_mem) {
+		case BM_MEM_LOW:
 			reduced = 1;
 			anim_frames = (anim_frames + 1) / 2;
 			anim_fps = (anim_fps / 2);
-		} else if (Bm_low_mem == 2) {
+			break;
+
+		case BM_MEM_DEBUG:
 			anim_frames = 1;
+			break;
+
+		case BM_MEM_HIGH:
+		default:
+			// load every frame
+			break;
 		}
 	}
 
@@ -2245,7 +2254,7 @@ bool bm_page_out(int handle) {
 
 	// in case it's already been released
 	if (bm_bitmaps[n].type == BM_TYPE_NONE)
-		return 0;
+		return false;
 
 	// it's possible to hit < 0 here when model_page_out_textures() is
 	// called from anywhere other than in a mission
@@ -2258,7 +2267,7 @@ bool bm_page_out(int handle) {
 		// lets decrease it for next time around
 		bm_bitmaps[n].preload_count--;
 
-		return 0;
+		return false;
 	}
 
 	return (bm_unload(handle) == 1);
@@ -2281,7 +2290,7 @@ void bm_print_bitmaps() {
 #endif
 }
 
-int bm_release(int handle, int clear_render_targets) {
+bool bm_release(int handle, bool clear_render_targets) {
 	Assert(handle >= 0);
 
 	bitmap_entry *be;
@@ -2292,20 +2301,20 @@ int bm_release(int handle, int clear_render_targets) {
 	be = &bm_bitmaps[n];
 
 	if (be->type == BM_TYPE_NONE) {
-		return 0;	// Already been released?
+		return false;	// Already been released?
 	}
 
 	Assertion(be->handle == handle, "Invalid bitmap handle number %d (expected %d) for %s passed to bm_release()\n", be->handle, handle, be->filename);
 
 	if (!clear_render_targets && ((be->type == BM_TYPE_RENDER_TARGET_STATIC) || (be->type == BM_TYPE_RENDER_TARGET_DYNAMIC))) {
 		nprintf(("BmpMan", "Tried to release a render target!\n"));
-		return 0;
+		return false;
 	}
 
 	// If it is locked, cannot free it.
 	if (be->ref_count != 0) {
 		nprintf(("BmpMan", "Tried to release %s that has a lock count of %d.. not releasing\n", be->filename, be->ref_count));
-		return 0;
+		return false;
 	}
 
 	// kind of like ref_count except it gets around the lock/unlock usage problem
@@ -2316,7 +2325,7 @@ int bm_release(int handle, int clear_render_targets) {
 
 	if (be->load_count != 0) {
 		nprintf(("BmpMan", "Tried to release %s that has a load count of %d.. not releasing\n", be->filename, be->load_count + 1));
-		return 0;
+		return false;
 	}
 
 	if (be->type != BM_TYPE_USER) {
@@ -2374,7 +2383,7 @@ int bm_release(int handle, int clear_render_targets) {
 		bm_bitmaps[n].handle = -1;
 	}
 
-	return 1;
+	return true;
 }
 
 int bm_reload(int bitmap_handle, const char* filename) {
@@ -2481,10 +2490,7 @@ void bm_set_components_argb_32_tex(ubyte *pixel, ubyte *rv, ubyte *gv, ubyte *bv
 	*((unsigned int*)pixel) |= (unsigned int)(Gr_current_alpha->mask);
 }
 
-void bm_set_low_mem(int mode) {
-	Assert((mode >= 0) && (mode <= 2));
-
-	CLAMP(mode, 0, 2);
+void bm_set_low_mem(BM_MEM_MODE mode) {
 	Bm_low_mem = mode;
 }
 
