@@ -9369,7 +9369,8 @@ void ship_process_post(object * obj, float frametime)
 		}
 
 		// Goober5000 - player may want to use AI
-		if ( (Ships[num].ai_index >= 0) && (!(obj->flags & OF_PLAYER_SHIP) || Player_use_ai) ){
+		// [z64555] player may want to use AI's shield management
+		if ((Ships[num].ai_index >= 0) && (!(obj->flags & OF_PLAYER_SHIP) || Player_use_ai || (Players[Player_num].flags & PLAYER_FLAGS_AUTO_SHIELD_MANAGEMENT))) {
 			if (!physics_paused && !ai_paused){
 				ai_process( obj, Ships[num].ai_index, frametime );
 			}

@@ -185,8 +185,9 @@ typedef struct ai_goal {
 #define	AIM_SENTRYGUN			19		//  AI mode for sentry guns only (floating turrets)
 #define	AIM_WARP_OUT			20		//	Commence warp out sequence.  Point in legal direction.  Then call John's code.
 #define AIM_FLY_TO_SHIP			21		//  [Kazan] Fly to a ship, doesn't matter if it's hostile or friendly -- for Autopilot usage
+#define AIM_MANAGE_SHIELD		22		//  [z64555] Have the player's shielding managed by AI
 
-#define	MAX_AI_BEHAVIORS		22		//	Number of AIM_xxxx types
+#define	MAX_AI_BEHAVIORS		23		//	Number of AIM_xxxx types
 
 #define	MAX_WAYPOINTS_PER_LIST	20
 #define	MAX_ENEMY_DISTANCE	2500.0f		//	Maximum distance from which a ship will pursue an enemy.

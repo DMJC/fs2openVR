@@ -52,6 +52,8 @@ struct campaign_info;
 #define PLAYER_FLAGS_KILLED_SELF_UNKNOWN			(1<<16)		// player died by his own hand
 #define PLAYER_FLAGS_KILLED_SELF_MISSILES			(1<<17)		// player died by his own missile
 #define PLAYER_FLAGS_KILLED_SELF_SHOCKWAVE		(1<<18)		// player died by his own shockwave
+#define PLAYER_FLAGS_AUTO_SHIELD_MANAGEMENT     (1<<19)		// player enabled the ASM to manage their shields
+#define PLAYER_FLAGS_AUTO_SHIELD_MANAGEMENT_OVERRIDE    (1<<20)		// player is temporarily overriding the ASM
 
 #define PLAYER_KILLED_SELF						( PLAYER_FLAGS_KILLED_SELF_MISSILES | PLAYER_FLAGS_KILLED_SELF_SHOCKWAVE )
 

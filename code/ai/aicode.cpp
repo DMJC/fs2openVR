@@ -13978,6 +13978,13 @@ void ai_frame(int objnum)
 	// Set globals defining the current object and its enemy object.
 	Pl_objp = &Objects[objnum];
 
+	ai_manage_shield(Pl_objp, aip);		// [z64555] Moved this up here so that the player's movement wouldn't be affected by the ASM
+
+	if (aip->mode == AIM_MANAGE_SHIELD) {
+		// We're just here for the shield manager.
+		return;
+	}
+
 	//Default to glide OFF
 	Pl_objp->phys_info.flags &= ~PF_GLIDING;
 
@@ -14027,8 +14034,6 @@ void ai_frame(int objnum)
 	target_objnum = set_target_objnum(aip, aip->target_objnum);
 
 	Assert(objnum != target_objnum);
-
-	ai_manage_shield(Pl_objp, aip);
 	
 	if ( maybe_request_support(Pl_objp) ) {
 		if ( Ships[Pl_objp->instance].flags & SF_FROM_PLAYER_WING ) {
@@ -14253,14 +14258,7 @@ void ai_process( object * obj, int ai_index, float frametime )
 
 	ai_frame(OBJ_INDEX(obj));
 
-	AI_ci.pitch = 0.0f;
-	AI_ci.bank = 0.0f;
-	AI_ci.heading = 0.0f;
-
-	// the ships maximum velocity now depends on the energy flowing to engines
-	obj->phys_info.max_vel.xyz.z = Ships[obj->instance].current_max_speed;
 	ai_info	*aip = &Ai_info[Ships[obj->instance].ai_index];
-
 	//	In certain circumstances, the AI says don't fly in the normal way.
 	//	One circumstance is in docking and undocking, when the ship is moving
 	//	under thruster control.
@@ -14273,9 +14271,21 @@ void ai_process( object * obj, int ai_index, float frametime )
 		if (aip->submode >= AIS_WARP_3)
 			rfc = 0;
 		break;
+	case AIM_MANAGE_SHIELD:
+		// [z64555] Bail before we mess with anything
+		Last_ai_obj = OBJ_INDEX(obj);
+		return;
+		break;
 	default:
 		break;
 	}
+
+	AI_ci.pitch = 0.0f;
+	AI_ci.bank = 0.0f;
+	AI_ci.heading = 0.0f;
+
+	// the ships maximum velocity now depends on the energy flowing to engines
+	obj->phys_info.max_vel.xyz.z = Ships[obj->instance].current_max_speed;
 
 	if (rfc == 1) {
 		// Wanderer - sexp based override goes here - only if rfc is valid though

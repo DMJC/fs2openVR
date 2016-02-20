@@ -270,6 +270,8 @@ enum IoActionId  {
 	//!< ----------------------------
 	CYCLE_PRIMARY_WEAPON_SEQUENCE					=118,	//!< cycle num primaries to fire at once
 
+	TOGGLE_AUTO_SHIELD_MANAGMENT                   = 119,	//!< toggle AI to control player's shield management
+
 	/*!
 	 * This must always be below the last defined item
 	 */
