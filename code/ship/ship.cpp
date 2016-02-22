@@ -6113,9 +6113,9 @@ void ship_recalc_subsys_strength( ship *shipp )
 		ship_reset_disabled_physics( &Objects[shipp->objnum], shipp->ship_info_index );
 	}
 
-	if (shipp->subsys_info[SUBSYSTEM_SHIELD_GENERATOR].num > 0)
+	if (shipp->subsys_info[SUBSYSTEM_SHIELD_GENERATOR].type_count > 0)
 	{
-		if (shipp->subsys_info[SUBSYSTEM_SHIELD_GENERATOR].current_hits == 0.0f)
+		if (shipp->subsys_info[SUBSYSTEM_SHIELD_GENERATOR].aggregate_current_hits == 0.0f)
 			Objects[shipp->objnum].flags |= OF_NO_SHIELDS;
 		else
 			Objects[shipp->objnum].flags &= ~OF_NO_SHIELDS;
@@ -14433,7 +14433,8 @@ DCF(set_subsys, "Set the strength of a particular subsystem on player ship" )
 				break;
 			default:
 				// Nothing to do...
-		}
+				break;
+		};
 	}
 }
 //XSTR:ON

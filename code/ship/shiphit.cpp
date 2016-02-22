@@ -266,8 +266,8 @@ void do_subobj_destroyed_stuff( ship *ship_p, ship_subsys *subsys, vec3d* hitpos
 			ship_p->flags |= SF_DISABLED;
 		}
 	} else if (psub->type == SUBSYSTEM_SHIELD_GENERATOR) {
-		if ( ship_p->subsys_info[type].current_hits == 0.0f ) {
-			ship_obj->flags |= OF_NO_SHIELDS;
+		if (ship_p->subsys_info[type].aggregate_current_hits == 0.0f) {
+			ship_p->flags |= OF_NO_SHIELDS;
 		}
 	}
 

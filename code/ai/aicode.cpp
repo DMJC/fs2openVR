@@ -13236,7 +13236,7 @@ int maybe_request_support(object *objp)
 	desire += mrs_subsystem(shipp, SUBSYSTEM_SENSORS);
 
 	// Goober5000 - shields are key I would think
-	if (shipp->subsys_info[SUBSYSTEM_SHIELD_GENERATOR].num > 0)
+	if (shipp->subsys_info[SUBSYSTEM_SHIELD_GENERATOR].type_count > 0)
 		desire += mrs_subsystem(shipp, SUBSYSTEM_SHIELD_GENERATOR);
 
 

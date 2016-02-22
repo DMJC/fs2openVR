@@ -60,7 +60,7 @@
 /////////////////////////////////////////
 // shields
 /////////////////////////////////////////
-#define MIN_SHIELDS_FOR_FULL_STRENGTH	0.5f	// % shield subsystem strength below which shield becomes less effective
-#define MIN_SHIELDS_FOR_FULL_COVERAGE	0.3f	// % shield subsystem strength below which shield starts flickering
-
+#define MIN_SHIELDS_FOR_FULL_STRENGTH   0.50f	// % shield subsystem strength below which shield becomes less effective
+#define MIN_SHIELDS_FOR_FULL_COVERAGE   0.30f	// % shield subsystem strength below which shield starts flickering
+#define SHIELD_MIN_STR                  0.01f	// % shield subsystem strength below which shields are considered dead
 #endif

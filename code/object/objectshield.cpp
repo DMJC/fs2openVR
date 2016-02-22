@@ -146,21 +146,17 @@ float shield_get_quad(object *objp, int quadrant_num)
 	if (objp->type != OBJ_SHIP && objp->type != OBJ_START)
 		return 0.0f;
 
-	//WMC -	I removed SUBSYSTEM_SHIELD_GENERATOR to prevent pilot file
-	//		corruption, so comment all this out...
-	/*
-	// yarr!
 	ship_subsys_info *ssip = &Ships[objp->instance].subsys_info[SUBSYSTEM_SHIELD_GENERATOR];
 
 	// do we have a shield generator?
-	if (ssip->num > 0 && !Fred_running)
+	if (ssip->type_count > 0 && !Fred_running)
 	{
 		// rules for shield generator affecting coverage:
 		//	1. if generator above 50%, effective strength = actual strength
 		//	2. if generator below 50%, effective strength uses the scale_quad formula
 		//	3. if generator below 30%, shields only have a sqrt(generator strength)
 		//		chance of working, in addition to #2
-		float generator_fraction = ssip->current_hits / ssip->total_hits;
+		float generator_fraction = ssip->aggregate_current_hits / ssip->aggregate_max_hits;
 
 		if (generator_fraction > MIN_SHIELDS_FOR_FULL_STRENGTH)
 		{
@@ -182,11 +178,11 @@ float shield_get_quad(object *objp, int quadrant_num)
 			else
 				return 0.0f;
 		}
-	}
-	// no shield generator, so behave as normal
-	else
-	*/
+
+	} else {
+		// no shield generator, so behave as normal
 		return objp->shield_quadrant[quadrant_num];
+	}
 }
 
 // Goober5000
