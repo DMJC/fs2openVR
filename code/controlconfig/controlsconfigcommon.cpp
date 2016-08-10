@@ -241,13 +241,9 @@ char *Scan_code_text_german[] = {
 	"",				"",				"",				"",				"",				"",				"",				"",
 };
 
-char *Joy_button_text_german[] = {
-	"Knopf 1",		"Knopf 2",		"Knopf 3",		"Knopf 4",		"Knopf 5",		"Knopf 6",
-	"Knopf 7",		"Knopf 8",		"Knopf 9",		"Knopf 10",		"Knopf 11",		"Knopf 12",
-	"Knopf 13",		"Knopf 14",		"Knopf 15",		"Knopf 16",		"Knopf 17",		"Knopf 18",
-	"Knopf 19",		"Knopf 20",		"Knopf 21",		"Knopf 22",		"Knopf 23",		"Knopf 24",
-	"Knopf 25",		"Knopf 26",		"Knopf 27",		"Knopf 28",		"Knopf 29",		"Knopf 30",
-	"Knopf 31",		"Knopf 32",		"Hut Hinten",	"Hut Vorne",	"Hut Links",	"Hut Rechts"
+char *Joy_button_text_german = "Knopf %i";
+char *Joy_hat_text_german[] = {
+	"Hut Hinten",	"Hut Vorne",	"Hut Links",	"Hut Rechts"
 };
 
 char *Scan_code_text_french[] = {
@@ -292,13 +288,9 @@ char *Scan_code_text_french[] = {
 	"",				"",				"",				"",				"",				"",				"",				"",
 };
 
-char *Joy_button_text_french[] = {
-	"Bouton 1",		"Bouton 2",		"Bouton 3",		"Bouton 4",		"Bouton 5",		"Bouton 6",
-	"Bouton 7",		"Bouton 8",		"Bouton 9",		"Bouton 10",		"Bouton 11",		"Bouton 12",
-	"Bouton 13",		"Bouton 14",		"Bouton 15",		"Bouton 16",		"Bouton 17",		"Bouton 18",
-	"Bouton 19",		"Bouton 20",		"Bouton 21",		"Bouton 22",		"Bouton 23",		"Bouton 24",
-	"Bouton 25",		"Bouton 26",		"Bouton 27",		"Bouton 28",		"Bouton 29",		"Bouton 30",
-	"Bouton 31",		"Bouton 32",		"Chapeau Arri\x8Are",		"Chapeau Avant",		"Chapeau Gauche",		"Chapeau Droite"
+char *Joy_button_text_french = "Bouton %i";
+char *Joy_hat_text_french[] = {
+	"Chapeau Arri\x8Are",		"Chapeau Avant",		"Chapeau Gauche",		"Chapeau Droite"
 };
 
 char *Scan_code_text_polish[] = {
@@ -343,13 +335,9 @@ char *Scan_code_text_polish[] = {
 	"",				"",				"",				"",				"",				"",				"",				"",
 };
 
-char *Joy_button_text_polish[] = {
-	"Przyc.1",		"Przyc.2",		"Przyc.3",		"Przyc.4",		"Przyc.5",		"Przyc.6",
-	"Przyc.7",		"Przyc.8",		"Przyc.9",		"Przyc.10",	"Przyc.11",	"Przyc.12",
-	"Przyc.13",	"Przyc.14",	"Przyc.15",	"Przyc.16",	"Przyc.17",	"Przyc.18",
-	"Przyc.19",	"Przyc.20",	"Przyc.21",	"Przyc.22",	"Przyc.23",	"Przyc.24",
-	"Przyc.25",	"Przyc.26",	"Przyc.27",	"Przyc.28",	"Przyc.29",	"Przyc.30",
-	"Przyc.31",	"Przyc.32",	"Hat Ty\xB3",		"Hat Prz\xF3\x64",	"Hat Lewo",		"Hat Prawo"
+char *Joy_button_text_polish = "Przyc.%i";
+char *Joy_hat_text_polish[] = {
+	"Hat Ty\xB3",		"Hat Prz\xF3\x64",	"Hat Lewo",		"Hat Prawo"
 };
 
 //!	This is the text that is displayed on the screen for the keys a player selects
@@ -395,17 +383,14 @@ char *Scan_code_text_english[] = {
 	"",				"",				"",				"",				"",				"",				"",				"",
 };
 
-char *Joy_button_text_english[] = {
-	"Button 1",		"Button 2",		"Button 3",		"Button 4",		"Button 5",		"Button 6",
-	"Button 7",		"Button 8",		"Button 9",		"Button 10",	"Button 11",	"Button 12",
-	"Button 13",	"Button 14",	"Button 15",	"Button 16",	"Button 17",	"Button 18",
-	"Button 19",	"Button 20",	"Button 21",	"Button 22",	"Button 23",	"Button 24",
-	"Button 25",	"Button 26",	"Button 27",	"Button 28",	"Button 29",	"Button 30",
-	"Button 31",	"Button 32",	"Hat Back",		"Hat Forward",	"Hat Left",		"Hat Right"
+char *Joy_button_text_english = "Button %i";
+char *Joy_hat_text_english[] = {
+	"Hat Back",		"Hat Forward",	"Hat Left",		"Hat Right"
 };
 
 char **Scan_code_text = Scan_code_text_english;
-char **Joy_button_text = Joy_button_text_english;
+char *Joy_button_text = Joy_button_text_english;
+char **Joy_hat_text = Joy_hat_text_english;
 
 SCP_vector<config_item*> Control_config_presets;
 SCP_vector<SCP_string> Control_config_preset_names;
@@ -511,7 +496,7 @@ char *translate_key(char *key)
 {
 	int index = -1, key_code = -1, joy_code = -1;
 	char *key_text = NULL;
-	char *joy_text = NULL;
+	SCP_string joy_text = "";
 
 	static char text[40] = {"None"};
 
@@ -530,21 +515,22 @@ char *translate_key(char *key)
 	}
 
 	if (joy_code >= 0) {
-		joy_text = Joy_button_text[joy_code];
+		sprintf(joy_text, Joy_button_text, joy_code);
+		//TODO Hats
 	}
 
 	// both key and joystick button are mapped to this control
 	if ((key_code >= 0 ) && (joy_code >= 0) ) {
 		strcpy_s(text, key_text);
 		strcat_s(text, " or ");
-		strcat_s(text, joy_text);
+		strcat_s(text, joy_text.c_str());
 	}
 	// if we only have one
 	else if (key_code >= 0 ) {
 		strcpy_s(text, key_text);
 	}
 	else if (joy_code >= 0) {
-		strcpy_s(text, joy_text);
+		strcpy_s(text, joy_text.c_str());
 	}
 	else {
 		strcpy_s(text, "None");
