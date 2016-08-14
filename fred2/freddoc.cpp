@@ -430,14 +430,8 @@ void CFREDDoc::OnFileImportFSM() {
 		char *ch;
 
 		// get base paths
-		strcpy_s(fs1_mission_path, Fred_exe_dir);
-		ch = strrchr(fs1_mission_path, DIR_SEPARATOR_CHAR);
-		if (ch != NULL)
-			*ch = '\0';
-		strcpy_s(fs2_mission_path, Fred_exe_dir);
-		ch = strrchr(fs2_mission_path, DIR_SEPARATOR_CHAR);
-		if (ch != NULL)
-			*ch = '\0';
+		strcpy_s(fs1_mission_path, Fred_base_dir);
+		strcpy_s(fs2_mission_path, Fred_base_dir);
 
 		// estimate the mission path for FS1
 		if ((ch = stristr(fs1_mission_path, "FreeSpace2")) != NULL) {

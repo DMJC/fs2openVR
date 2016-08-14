@@ -238,16 +238,8 @@ void CMainFrame::OnFileMissionnotes() {
 void CMainFrame::OnFredHelp() {
 	char buffer[_MAX_PATH];
 
-	// get exe path
-	strcpy_s(buffer, Fred_exe_dir);
-
-	// strip exe name
-	char *last_slash = strrchr(buffer, '\\');
-	if (last_slash == NULL) {
-		return;
-	} else {
-		*last_slash = 0;
-	}
+	// get exe dir
+	strcpy_s(buffer, Fred_base_dir);
 
 	// add rest of path
 	strcat_s(buffer, FRED_HELP_URL);

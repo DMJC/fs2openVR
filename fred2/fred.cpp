@@ -290,16 +290,10 @@ BOOL CFREDApp::InitInstance() {
 
 	GetCurrentDirectory(MAX_PATH_LEN - 1, Fred_exe_dir);
 
+	strcpy_s(Fred_base_dir, Fred_exe_dir);	// Save the dir before we make it into a filepath
+
 	strcat_s(Fred_exe_dir, DIR_SEPARATOR_STR);
 	strcat_s(Fred_exe_dir, "fred2.exe");
-
-	strcpy_s(Fred_base_dir, Fred_exe_dir);
-
-	char *str_end = Fred_base_dir + strlen(Fred_base_dir) - 1; // last char
-
-	while (*str_end != '//' && *str_end != '\\')
-		str_end--;
-	*str_end = '\0';
 
 
 	// Goober5000 - figure out where the FRED file dialog should go
