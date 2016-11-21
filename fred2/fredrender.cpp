@@ -636,36 +636,63 @@ void draw_compass_arrow(vec3d *v0) {
 }
 
 void draw_orient_sphere(object *obj, int r, int g, int b) {
-	int		flag = 0;
-	vertex	v;
-	vec3d	v1, v2;
-	float		size;
-
+	bool f_flag = false;
+	bool u_flag = false;
+	vec3d fstick[2];
+	vec3d ustick[2];
+	float  size;
+	
+	// Commented out for now, b/c the htl sphere won't scale
+	/*
 	size = fl_sqrt(vm_vec_dist(&eye_pos, &obj->pos) / 20.0f);
 	if (size < LOLLIPOP_SIZE)
 		size = LOLLIPOP_SIZE;
+		*/
+	size = 1.0f;
 
-	if ((obj->type != OBJ_WAYPOINT) && (obj->type != OBJ_POINT)) {
-		flag = (vm_vec_dot(&eye_orient.vec.fvec, &obj->orient.vec.fvec) < 0.0f);
-		v1 = v2 = obj->pos;
-		vm_vec_scale_add2(&v1, &obj->orient.vec.fvec, size);
-		vm_vec_scale_add2(&v2, &obj->orient.vec.fvec, size * 1.5f);
+	// Calculate start and end positions for each stick
+	f_flag = (vm_vec_dot(&eye_orient.vec.fvec, &obj->orient.vec.fvec) < 0.0f);
+	fstick[0] = fstick[1] = obj->pos;
+	vm_vec_scale_add2(&fstick[0], &obj->orient.vec.fvec, size * 0.9f);
+	vm_vec_scale_add2(&fstick[1], &obj->orient.vec.fvec, size * 3.0f);
 
-		if (!flag) {
-			gr_set_color(192, 192, 192);
-			rpd_line(&v1, &v2);
-		}
+	u_flag = (vm_vec_dot(&eye_orient.vec.uvec, &obj->orient.vec.uvec) < 0.0f);
+	ustick[0] = ustick[1] = obj->pos;
+	vm_vec_scale_add2(&ustick[0], &obj->orient.vec.uvec, size * 0.9f);
+	vm_vec_scale_add2(&ustick[1], &obj->orient.vec.uvec, size * 3.0f);
+
+	// If the stick is behind the sphere, draw the stick first with a subdued color
+	if (!f_flag) {
+		gr_set_color(20, 20, 190);
+		g3_render_rod(2, fstick, 0.5 * size);
+		//g3_render_line_3d(true, &ustick[0], &ustick[1]);
+	}
+	if (!u_flag) {
+		gr_set_color(20, 190, 20);
+		g3_render_rod(2, ustick, 0.5 * size);
+		//g3_render_line_3d(true, &ustick[0], &ustick[1]);
 	}
 
-	gr_set_color(r, g, b);
-	g3_rotate_vertex(&v, &obj->pos);
-	if (!(v.codes & CC_BEHIND))
-		if (!(g3_project_vertex(&v) & PF_OVERFLOW))
-			g3_draw_sphere(&v, size);
+	// Draw the sphere
+	if (Fred_outline) {
+		gr_set_color(__min(r * 2, 255), __min(g * 2, 255), __min(b * 2, 255));
+		g3_draw_htl_sphere(&obj->pos, size * 1.5f);
+	} else {
+		gr_set_color(r, g, b);
+		g3_draw_htl_sphere(&obj->pos, size);
+	}
 
-	if (flag) {
-		gr_set_color(192, 192, 192);
-		rpd_line(&v1, &v2);
+	// If the stick is ahead the sphere, draw the stick last with a bright color
+	if (f_flag) {
+		gr_set_color(32, 32, 255);
+		g3_render_rod(2, fstick, 0.5 * size);
+		//g3_render_line_3d(true, &fstick[0], &fstick[1]);
+	}
+
+	if (u_flag) {
+		gr_set_color(32, 255, 32);
+		g3_render_rod(2, ustick, 0.5 * size);
+		//g3_render_line_3d(true, &ustick[0], &ustick[1]);
 	}
 }
 
@@ -1832,7 +1859,9 @@ void render_one_model_htl(object *objp) {
 
 		} else
 			Assert(0);
-
+		
+		draw_orient_sphere(objp, r, g, b);
+		/*
 		float size = fl_sqrt(vm_vec_dist(&eye_pos, &objp->pos) / 20.0f);
 
 		if (size < LOLLIPOP_SIZE)
@@ -1845,6 +1874,7 @@ void render_one_model_htl(object *objp) {
 			gr_set_color(r, g, b);
 			g3_draw_htl_sphere(&objp->pos, size);
 		}
+		*/
 	}
 
 	if (objp->type == OBJ_WAYPOINT) {

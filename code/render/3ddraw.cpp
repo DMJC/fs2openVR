@@ -1091,6 +1091,10 @@ void g3_render_rod(color *clr, int num_points, vec3d *pvecs, float width)
 	g3_render_primitives_colored(&material_params, pts, nv, PRIM_TYPE_TRISTRIP, false);
 }
 
+void g3_render_rod(int num_points, vec3d *pvecs, float width) {
+	g3_render_rod(&gr_screen.current_color, num_points, pvecs, width);
+}
+
 // adapted from g3_draw_2d_shield_icon()
 void g3_render_shield_icon(color *clr, coord2d coords[6], int resize_mode)
 {

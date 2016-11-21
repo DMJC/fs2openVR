@@ -247,6 +247,7 @@ void g3_render_primitives_colored(material* mat, vertex* verts, int n_verts, pri
 void g3_render_primitives_colored_textured(material* mat, vertex* verts, int n_verts, primitive_type prim_type, bool orthographic = false);
 
 void g3_render_rod(color *clr, int num_points, vec3d *pvecs, float width);
+void g3_render_rod(int num_points, vec3d *pvecs, float width);
 
 void g3_render_laser(material *mat_params, vec3d *headp, float head_width, vec3d *tailp, float tail_width);
 void g3_render_laser_2d(material *mat_params, vec3d *headp, float head_width, vec3d *tailp, float tail_width, float max_len);
